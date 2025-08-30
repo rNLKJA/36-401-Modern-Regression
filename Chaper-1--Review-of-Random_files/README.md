@@ -169,20 +169,19 @@ co- variances that we’ll use throughout this class.
 
 **Exercise 0.3. What is Cov(X, X)?**
 
-$\operatorname{Cov}(X, X) = E\big[(X - E[X])(X - E[X])\big] = E\big[(X - E[X])^2\big] = \operatorname{Var}(X)$
+$\text{Cov}(X, X) = E\big[(X - E[X])(X - E[X])\big] = E\big[(X - E[X])^2\big] = \text{Var}(X)$
 
 Equivalent form:
 
-$\operatorname{Cov}(X, X) = E[X^2] - (E[X])^2$
+$\text{Cov}(X, X) = E[X^2] - (E[X])^2$
 
-If $\operatorname{Var}(X) > 0$, then the correlation of $X$ with itself
-is
+If $\text{Var}(X) > 0$, then the correlation of $X$ with itself is
 
-$\operatorname{Corr}(X, X) = \frac{\operatorname{Cov}(X, X)}{\sigma_X \sigma_X} = \frac{\operatorname{Var}(X)}{\sigma_X^2} = 1$
+$\text{Corr}(X, X) = \frac{\text{Cov}(X, X)}{\sigma_X \sigma_X} = \frac{\text{Var}(X)}{\sigma_X^2} = 1$
 
-If $X$ is almost surely constant, then $\operatorname{Var}(X) = 0$ and
-$\operatorname{Cov}(X, X)=0$ (its correlation with itself is undefined
-because of division by zero).
+If $X$ is almost surely constant, then $\text{Var}(X) = 0$ and
+$\text{Cov}(X, X)=0$ (its correlation with itself is undefined because
+of division by zero).
 
 The above expectations, variances, covariances, and correlations are
 population level quantities that we’ll estimate with sample analogs from
@@ -391,7 +390,7 @@ every linear combination (in particular $Y$) is Normal with
 
 $$
 E(Y)=\sum_{i=1}^n a_i \mu_i, \qquad
-\operatorname{Var}(Y)=\sum_{i=1}^n a_i^{2}\sigma_i^{2}.
+\text{Var}(Y)=\sum_{i=1}^n a_i^{2}\sigma_i^{2}.
 $$
 
 More general case (allowing dependence): Even if the $X_i$ are
@@ -401,7 +400,7 @@ covariance matrix $\Sigma$ such that $X \sim N_n(\mu,\Sigma)$), then any
 linear combination $Y = a^\top X$ is Normal with
 
 $$
-E(Y)= a^\top \mu,\qquad \operatorname{Var}(Y)= a^\top \Sigma a.
+E(Y)= a^\top \mu,\qquad \text{Var}(Y)= a^\top \Sigma a.
 $$
 
 Why marginal Normality alone is not enough: It is possible for each
@@ -416,8 +415,8 @@ $$
 X_1 = Z,\qquad X_2 = U Z.
 $$
 
-Then each marginal is $N(0,1)$, and
-$\operatorname{Cov}(X_1,X_2)=E[U Z^{2}]=0$. But
+Then each marginal is $N(0,1)$, and $\text{Cov}(X_1,X_2)=E[U Z^{2}]=0$.
+But
 
 $$
 X_1 + X_2 = (1+U)Z =
@@ -528,9 +527,8 @@ underpinning many classical statistical procedures.
   - Continuous case: pdf $f(x)$ with
     $P(a \le X \le b) = \int_a^b f(x)\,dx$.
   - Cumulative distribution function (cdf): $F(x) = P(X \le x)$.
-  - Population mean: $E(X)$; variance: $\operatorname{Var}(X)$;
-    covariance: $\operatorname{Cov}(X,Y)$; correlation:
-    $\operatorname{Corr}(X,Y)$.
+  - Population mean: $E(X)$; variance: $\text{Var}(X)$; covariance:
+    $\text{Cov}(X,Y)$; correlation: $\text{Corr}(X,Y)$.
   - Bar notation (e.g. $\bar X$) later denotes a sample mean (introduced
     for large‑sample results).
 - Log scaling (motivation illustrated in the population vs per‑capita
@@ -556,13 +554,13 @@ underpinning many classical statistical procedures.
     separately enumerated).
 - Variance, covariance, correlation:
   - Variance:
-    $\operatorname{Var}(X) = E\big[(X - E(X))^2\big] = E(X^2) - (E(X))^2.$
-  - Covariance: $\operatorname{Cov}(X,Y) = E(XY) - E(X)E(Y).$
+    $\text{Var}(X) = E\big[(X - E(X))^2\big] = E(X^2) - (E(X))^2.$
+  - Covariance: $\text{Cov}(X,Y) = E(XY) - E(X)E(Y).$
   - Correlation:
-    $\operatorname{Corr}(X,Y) = \frac{\operatorname{Cov}(X,Y)}{\sigma_X \sigma_Y}$
-    with $-1 \le \operatorname{Corr}(X,Y) \le 1$.
-  - Special case: $\operatorname{Cov}(X,X) = \operatorname{Var}(X)$;
-    correlation of a non‑degenerate variable with itself is 1.
+    $\text{Corr}(X,Y) = \frac{\text{Cov}(X,Y)}{\sigma_X \sigma_Y}$ with
+    $-1 \le \text{Corr}(X,Y) \le 1$.
+  - Special case: $\text{Cov}(X,X) = \text{Var}(X)$; correlation of a
+    non‑degenerate variable with itself is 1.
 - Conditional expectation:
   - Discrete: $E(Y \mid X = x) = \sum_y y f_{Y|X}(y|x).$
   - Continuous: $E(Y \mid X = x) = \int y f_{Y|X}(y|x)\,dy.$
@@ -571,8 +569,8 @@ underpinning many classical statistical procedures.
   - It is a function of $x$; the random variable $E(Y \mid X)$ evaluates
     to that function at the realised value of $X$.
 - Worked conditional example (Uniform nesting):
-  - Setup: $X \sim \operatorname{Unif}(0,1)$; conditional on $X = x$,
-    $Y \sim \operatorname{Unif}(x,1)$.
+  - Setup: $X \sim \text{Unif}(0,1)$; conditional on $X = x$,
+    $Y \sim \text{Unif}(x,1)$.
   - Conditional mean: $E(Y \mid X = x) = \frac{x+1}{2}$.
   - Unconditional mean via iteration:
     $E(Y) = E\left( \frac{X+1}{2} \right) = \frac{E(X)+1}{2} = \frac{1/2 + 1}{2} = \frac{3}{4}.$
@@ -587,15 +585,15 @@ underpinning many classical statistical procedures.
     - Importance: Justifies using sample mean as a consistent estimator.
   - Central Limit Theorem (CLT): For iid $X_i$ with finite mean and
     variance,
-    $\sqrt{n}\left( \frac{\bar X - E(X)}{\sqrt{\operatorname{Var}(X)}} \right) \xrightarrow{d} N(0,1).$
+    $\sqrt{n}\left( \frac{\bar X - E(X)}{\sqrt{\text{Var}(X)}} \right) \xrightarrow{d} N(0,1).$
     - Provides approximate sampling Normality and variance scaling
-      $\operatorname{Var}(\bar X) = \operatorname{Var}(X)/n$ (as used
-      within the Normal approximation).
+      $\text{Var}(\bar X) = \text{Var}(X)/n$ (as used within the Normal
+      approximation).
     - Importance: Underpins interval estimation and hypothesis testing.
 - Normal distribution:
   - Density:
     $f(x) = \frac{1}{\sqrt{2\pi \sigma^2}} \exp\left(-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2\right),\; -\infty < x < \infty.$
-  - Parameters: $E(X)=\mu,\; \operatorname{Var}(X)=\sigma^2$.
+  - Parameters: $E(X)=\mu,\; \text{Var}(X)=\sigma^2$.
   - Standard Normal: $\mu = 0,\; \sigma^2 = 1$.
   - Linear combination condition (Exercise): A linear combination
     $Y = \sum_{i=1}^n a_i X_i$ is Normal if the vector $(X_1,\dots,X_n)$
