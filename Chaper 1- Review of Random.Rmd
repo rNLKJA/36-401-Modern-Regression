@@ -6,7 +6,7 @@ output: html_notebook
 
 ## Motivation
 
-Regression involves learning the relationship (if any) between outcomes Y and covariates X. Given n observations, our data will look like $(X_1, Y_1), \dots, (X_n, Y_n)$, where each Xi and Yi is organized by columns in a dataset. Example 0.1. The US Bureau of Economic Analysis (BEA) releases data on the economic output of metropolitan areas. Below we consider data from 2006, where we assess the relationship between per-capita gross metropolitan product (GMP) (the outcome) and population size (the covariate). 
+Regression involves learning the relationship (if any) between outcomes Y and covariates X. Given n observations, our data will look like $(X_1, Y_1), \dots, (X_n, Y_n)$, where each $X_i$ and $Y_i$ is organized by columns in a dataset. Example 0.1. The US Bureau of Economic Analysis (BEA) releases data on the economic output of metropolitan areas. Below we consider data from 2006, where we assess the relationship between per-capita gross metropolitan product (GMP) (the outcome) and population size (the covariate). 
 
 We can load the data and look at the first few rows:
 
