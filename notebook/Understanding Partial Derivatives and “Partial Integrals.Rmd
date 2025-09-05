@@ -1,0 +1,279 @@
+---
+title: "Understanding Partial Derivatives and “Partial Integrals"
+output: rmarkdown::github_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+## 1. Purpose
+
+This README explains: 1. What a partial derivative is and how it is used
+in deriving the least squares (and MLE) estimators in simple linear
+regression. 2. What is often (informally) called a “partial integral”:
+integrating with respect to one variable while conditioning or holding
+others fixed (i.e., iterated / marginal integration). This underlies
+conditional expectations like $E[Y|X]$ and proofs such as showing
+$E[Y|X]$ minimizes mean squared error (MSE).
+
+All concepts are tied back to the simple linear regression setting you
+previously described: $$
+Y_i = \beta_0 + \beta_1 X_i + \epsilon_i,\quad E[\epsilon_i|X_i]=0,\quad \text{Var}(\epsilon_i|X_i)=\sigma^2
+$$
+
+------------------------------------------------------------------------
+
+## 2. Partial Derivatives: Definition and Role
+
+### 2.1 Definition
+
+Let $f(\theta_1,\theta_2,\dots,\theta_p)$ be a function of several real
+variables. The partial derivative with respect to $\theta_j$ treats all
+other variables as constants: $$
+\frac{\partial f}{\partial \theta_j} = \lim_{h\to 0} \frac{f(\theta_1,\dots,\theta_j + h,\dots,\theta_p) - f(\theta_1,\dots,\theta_j,\dots,\theta_p)}{h}
+$$
+
+### 2.2 Geometric Interpretation
+
+-   Each partial derivative measures the instantaneous rate of change of
+    the surface defined by $f$ when moving along the axis of that
+    variable.
+-   Collecting all first partial derivatives gives the gradient vector:
+    $$
+    \nabla f = \begin{bmatrix}
+    \frac{\partial f}{\partial \theta_1}\\
+    \vdots\\
+    \frac{\partial f}{\partial \theta_p}
+    \end{bmatrix}
+    $$
+-   Setting $\nabla f = 0$ (when possible) locates critical points
+    (minima, maxima, saddle points).
+
+### 2.3 In Simple Linear Regression
+
+We minimize the least squares criterion: $$
+Q_{LS}(\beta_0,\beta_1) = \sum_{i=1}^n \left(Y_i - (\beta_0 + \beta_1 X_i)\right)^2
+$$
+
+Its partial derivatives are: $$
+\frac{\partial Q_{LS}}{\partial \beta_0} = -2\sum_{i=1}^n \left(Y_i - \beta_0 - \beta_1 X_i\right)
+$$ $$
+\frac{\partial Q_{LS}}{\partial \beta_1} = -2\sum_{i=1}^n X_i \left(Y_i - \beta_0 - \beta_1 X_i\right)
+$$
+
+Setting both equal to zero gives the normal equations from which: $$
+\hat\beta_1 = \frac{\sum_{i=1}^n (X_i - \bar X)(Y_i - \bar Y)}{\sum_{i=1}^n (X_i - \bar X)^2},\qquad
+\hat\beta_0 = \bar Y - \hat\beta_1 \bar X
+$$
+
+### 2.4 Why Partial Derivatives Work Here
+
+-   The function $Q_{LS}$ is quadratic in $\beta_0,\beta_1$; its Hessian
+    matrix (matrix of second partial derivatives) is positive
+    semidefinite and positive definite when the $X_i$ are not all
+    identical ($s_{xx}>0$).
+-   Hence the solution to $\nabla Q_{LS}=0$ is the unique global
+    minimizer.
+
+### 2.5 Example (Symbolic / Numeric)
+
+Suppose a tiny dataset:
+
+$$
+(X,Y) = \{(0,1), (1,2), (2,2)\}
+$$
+
+Compute $Q_{LS}$, its gradient, and solve:
+
+$$
+Q_{LS} = (1 - \beta_0 - \beta_1\cdot 0)^2 + (2 - \beta_0 - \beta_1\cdot 1)^2 + (2 - \beta_0 - \beta_1\cdot 2)^2
+$$
+
+You can expand, take partial derivatives, and solve the linear system
+(or just use software).
+
+```{r}
+dat <- data.frame(X=c(0,1,2), Y=c(1,2,2))
+fit <- lm(Y ~ X, data=dat)
+coef(fit)
+# (Intercept)           X 
+#    1.333333    0.500000
+```
+
+That matches hand derivations (slope 0.5, intercept 4/3).
+
+------------------------------------------------------------------------
+
+## 3. “Partial Integrals”: Iterated / Marginal / Conditional Integration
+
+The phrase “partial integral” is not a standard formal term, but in
+context it typically refers to:
+
+1.  Integrating a joint density with respect to one variable to obtain a
+    marginal (e.g. integrate over $y$ to get a function of $x$ only).
+2.  Conditioning on one variable: treating that variable as fixed while
+    integrating over the other (used in conditional expectations).
+3.  Using iterated expectations: applying an inner integral (or
+    expectation) first, then an outer one—like nesting integrals.
+
+We used this idea when proving that $f(X)=E[Y|X]$ minimizes
+$E[(Y - g(X))^2]$.
+
+### 3.1 Conditional Expectation as an Integral
+
+If \$(X,Y)) has joint density $f_{X,Y}(x,y)$ and conditional density
+$f_{Y|X}(y|x)$, then: $$
+E[Y|X=x] = \int_{-\infty}^{\infty} y\, f_{Y|X}(y|x)\, dy
+$$
+
+### 3.2 Law of Total Expectation (Iterated Integral)
+
+$$
+E[Y] = E\big[ E[Y|X] \big] = \int \left( \int y\, f_{Y|X}(y|x)\, dy \right) f_X(x)\, dx
+$$
+
+The inner integral (over $y$) is a “partial integral” with respect to
+$y$; the outer integral (over $x$) finishes the computation.
+
+### 3.3 Proving Optimality via Iterated (Partial) Integration
+
+We minimized: $$
+E[(Y - g(X))^2] = E\big[ E[(Y - g(X))^2|X] \big]
+$$ For fixed $X=x$: $$
+E[(Y - g(x))^2|X=x] = \text{Var}(Y|X=x) + (E[Y|X=x] - g(x))^2
+$$ The first term comes from an integral over $y$ holding $x$ fixed (a
+conditional / partial integral). Minimization then becomes pointwise.
+
+### 3.4 Example of Marginalization Producing a Conditional Mean
+
+Suppose (simplified illustrative model): $$
+Y|X=x \sim N(3 + 2x,\ 1)
+$$ Then: $$
+E[Y|X=x] = \int_{-\infty}^{\infty} y \cdot \frac{1}{\sqrt{2\pi}} e^{-\frac{(y-(3+2x))^2}{2}} dy = 3 + 2x
+$$ The integral evaluates directly because that is the mean of the
+normal distribution.
+
+### 3.5 Connection to Regression Residual Decomposition
+
+We can write the total mean squared error of a predictor $g(X)$ as: $$
+E[(Y - g(X))^2] = E[\text{Var}(Y|X)] + E[(E[Y|X] - g(X))^2]
+$$ The first term results from integrating $(Y - E[Y|X])^2$ over $y$
+(conditional), the second from integrating over $x$. Again: inner
+(conditional) then outer (marginal) integral.
+
+### 3.6 Another “Partial Integral” Example: Covariance
+
+Covariance can be expressed using iterated integration: $$
+\text{Cov}(X,Y) = E[XY] - E[X]E[Y]
+$$ $$
+E[XY] = \iint x y f_{X,Y}(x,y)\, dx\, dy
+$$ If easier, integrate in one order (over $y$) first to get a function
+of $x$, then over $x$; changing the order is a canonical application of
+Fubini’s theorem (justified when the integral of the absolute value is
+finite).
+
+------------------------------------------------------------------------
+
+## 4. How Partial Derivatives and Partial (Iterated) Integrals Work Together
+
+| Concept | Role in Regression |
+|----|----|
+| Partial derivatives | Used to optimize finite-sample criteria (e.g. minimize RSS or maximize log-likelihood) by solving $\nabla Q=0$. |
+| Partial / iterated integrals | Used to derive population-optimal predictors via conditional expectations (e.g. $E[Y|X]$) and to decompose risk. |
+| Example link | Deriving $\hat\beta$ uses $\partial / \partial \beta_j$; proving $E[Y|X]$ optimal uses iterated integration (conditioning). |
+
+------------------------------------------------------------------------
+
+## 5. Worked End-to-End Mini Example
+
+1.  Model (population): $$
+    Y = \beta_0 + \beta_1 X + \epsilon,\quad E[\epsilon|X]=0,\quad \text{Var}(\epsilon|X)=\sigma^2
+    $$
+2.  Population optimal *linear* predictor (partial integrals for
+    expectations): $$
+    g^*(X) = E[Y] + \frac{\text{Cov}(X,Y)}{\text{Var}(X)}(X - E[X]) = \beta_0 + \beta_1 X
+    $$
+3.  Sample objective: $$
+    Q_{LS}(\beta_0,\beta_1) = \sum (Y_i - \beta_0 - \beta_1 X_i)^2
+    $$
+4.  Partial derivatives → normal equations → closed form
+    $\hat\beta_0,\hat\beta_1$.
+5.  Residuals approximate errors; $\hat\sigma^2 = \text{RSS}/(n-2)$
+    connects sample quadratic form to population variance $\sigma^2$—the
+    irreducible MSE term $E[\text{Var}(Y|X)]$.
+
+------------------------------------------------------------------------
+
+## 6. Code Illustrations
+
+### 6.1 Gradient-Based Check in R
+
+```{r}
+set.seed(1)
+n <- 100
+X <- rnorm(n)
+Y <- 2 + 1.5*X + rnorm(n, sd=0.7)
+
+Q <- function(b0, b1) sum((Y - b0 - b1*X)^2)
+
+# Numerical gradient at a point
+grad <- function(b0, b1, h=1e-6){
+  g0 <- (Q(b0 + h, b1) - Q(b0 - h, b1))/(2*h)
+  g1 <- (Q(b0, b1 + h) - Q(b0, b1 - h))/(2*h)
+  c(dQ_db0 = g0, dQ_db1 = g1)
+}
+
+# Closed-form estimates
+fit <- lm(Y ~ X)
+coef(fit)
+
+grad(coef(fit)[1], coef(fit)[2])  # Should be very close to 0,0
+```
+
+### 6.2 Monte Carlo Approximation of Conditional Expectation
+
+```{r}
+# Suppose Y | X = x ~ Normal(3 + 2x, 1)
+# Approximate E[Y | X = 0.5] by simulation (integral approximation)
+
+x_val <- 0.5
+m_true <- 3 + 2*x_val
+
+y_sim <- rnorm(10^5, mean = 3 + 2*x_val, sd = 1)
+mean(y_sim)        # Approximate integral -> close to m_true
+m_true
+```
+
+------------------------------------------------------------------------
+
+## 7. Common Pitfalls / Clarifications
+
+1.  “Partial integral” is informal. Proper terms: marginalization,
+    conditional integration, iterated integral, applying law of total
+    expectation.
+2.  Partial derivatives require differentiability; if using absolute
+    errors $\sum |Y_i - (\beta_0 + \beta_1 X_i)|$, derivatives are not
+    defined at zero residual—subgradients are used instead.
+3.  Residuals $\hat\epsilon_i$ are not the same as errors $\epsilon_i$;
+    treating them as iid can mislead variance estimates unless
+    adjustments are made.
+4.  The optimal *function* of $X$ is $E[Y|X]$; the optimal *linear*
+    function is its projection onto the space of affine functions.
+
+------------------------------------------------------------------------
+
+## 8. Summary Cheat Sheet
+
+-   Partial derivative: compute local rate of change; core tool to
+    minimize RSS → gives normal equations.
+-   Iterated (partial) integral: integrate over one variable at a time
+    to get conditional expectations and risk decompositions.
+-   Key optimality identity: $$
+    E[(Y - g(X))^2] = E[\text{Var}(Y|X)] + E[(E[Y|X] - g(X))^2]
+    $$
+-   In the linear model: $$
+    g^*(X)=\beta_0+\beta_1 X,\quad \hat g(X)=\hat\beta_0+\hat\beta_1 X
+    $$
+-   Variance estimate (unbiased): $$
+    \hat\sigma^2 = \frac{\text{RSS}}{n-2}
+    $$
