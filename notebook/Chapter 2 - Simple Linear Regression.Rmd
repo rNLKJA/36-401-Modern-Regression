@@ -1,0 +1,662 @@
+---
+title: "36-401, Chapter 2: Simple Linear Regression"
+output: rmarkdown::github_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+## The Simple Linear Regression Model
+
+We’ll consider the most basic regression model: the simple linear
+regression model. This model involves a single covariate X and outcome
+Y.
+
+This model is called "simple" only because it uses just one covariate.
+Nonetheless, many interesting nuances arise even under this seemingly
+"simple" regression model. Importantly, this model will serve as a
+building block for more complex models throughout the course.
+
+As before, we assume we’ve collected observations
+$(X_1, Y_1), (X_2, Y_2),\dots,(X_n, Y_n)$. The simple linear regression
+model assumes that
+
+$$
+Y_i = \beta_0 + \beta_1 X_i + \epsilon_i, \quad i=1,2,\dots,n
+$$
+
+where $\beta_0$ is the intercept and $\beta_1$ is the slope for the
+regression line. Meanwhile, ϵi is random noise around the regression
+line.
+
+Importantly, the above equation communicates a conditional relationship:
+$Y_i|X_i$. Thus, we will consider quantities like $\text{E}[Y_i|X_i]$,
+$\text{Var}(Y_i|X_i)$, and the conditional distribution $Y_i|X_i$.
+Often, texts will say the Xi are "fixed" in a linear regression model;
+but really, they are fixed by conditioning on $X_i$.
+
+```{r}
+set.seed(42)
+X <- rnorm(50)
+Y <- 3.15 + 1.65*X + rnorm(50)
+plot(X, Y)
+abline(3.15, 1.65, col="red")
+```
+
+Figure 0.1: Synthetic scatter plot with n = 50 and a fitted regression
+line, $Y= 3.15 + 1.65X$.
+
+Linear regression can be applied to any dataset
+$(X_1, Y_1),\dots, (X_n, Y_n)$. However, to characterize the behavior of
+the linear regression model and conduct inference, we will need
+assumptions about the ϵi to justify our conclusions. Because we are
+conditioning on Xi and β0, β1 are fixed unknown parameters, $\epsilon_i$
+is the only random variable in the linear regression model.
+
+The base assumptions associated with simple linear regression are: 1.
+Mean-Zero Noise: $\text{E}(\epsilon_i | X_i) = 0$ for all $i$ 2.
+Constant Variance (“homoskedasticity”)
+$\text{Var}(\epsilon_i | X_i) = \sigma_2$ for all $i$ 3. Uncorrelated
+Noise: The ϵi are uncorrelated, i.e.,
+$\text{Cov}(\epsilon_i, \epsilon_j | X_i) = 0$ for all $i \ne j$.
+
+Additional assumptions, if justified, lead to stronger results. For
+example, as we’ll discuss, one often assumes that the ϵi are normally
+distributed.
+
+## Parameter Estimation
+
+The simple linear regression model has three fixed, unknown parameters:
+$\beta_0$, $\beta_1$, and $\sigma_2$. We’ll have to estimate these
+parameters using the data $(X_1, Y_1),\dots, (X_n, Y_n)$.
+
+We’ll first consider maximum likelihood estimation (MLE), which requires
+a likelihood function. In general, given iid random variables
+$(Z_1,\dots, Z_n)$ with parameter(s) θ, the likelihood function is
+
+$$
+L(\theta) = \prod^n_{i=1}f(z_i)
+$$
+
+Thus, in order to define a likelihood function within the context of
+linear regression, we’ll have to assume $Y_i|X_i$ follows a
+distribution. To do this, iid we’ll assume
+$\epsilon_i | X_i ∼ N(0, \sigma_2)$.
+
+**Exercise 0.1**. Describe the maximum likelihood approach to parameter
+estimation within the context of simple linear regression.
+
+Goal: Describe (and derive) the maximum likelihood estimators (MLEs) for
+$\beta_0, \beta_1, \sigma^2$ under the assumption
+$\epsilon_i | X_i \sim^{iid} N(0,\sigma^2)$.
+
+### Step 1. Model specification
+
+We assume for each observation: $$
+Y_i | X_i \sim N(\beta_0 + \beta_1 X_i,\ \sigma^2), \quad i=1,\dots,n
+$$ and conditional independence across $i$.
+
+### Step 2. Write the likelihood
+
+Because the conditional distributions are independent, $$
+L(\beta_0,\beta_1,\sigma^2) = \prod_{i=1}^n \frac{1}{\sqrt{2\pi\sigma^2}}
+\exp\left(-\frac{(Y_i - \beta_0 - \beta_1 X_i)^2}{2\sigma^2}\right)
+$$
+
+### Step 3. Log-likelihood
+
+$$
+\ell(\beta_0,\beta_1,\sigma^2) = -\frac{n}{2}\log(2\pi) - \frac{n}{2}\log(\sigma^2)
+ - \frac{1}{2\sigma^2}\sum_{i=1}^n (Y_i - \beta_0 - \beta_1 X_i)^2
+$$
+
+### Step 4. Concentrate on $\beta_0,\beta_1$
+
+For fixed $\sigma^2$, maximizing $\ell$ in $\beta_0,\beta_1$ is
+equivalent to minimizing $$
+S(\beta_0,\beta_1) = \sum_{i=1}^n (Y_i - \beta_0 - \beta_1 X_i)^2
+$$ So the MLEs $\hat\beta_0,\hat\beta_1$ are exactly the least squares
+(LS) minimizers.
+
+### Step 5. Take partial derivatives (normal equations)
+
+Define residuals $e_i = Y_i - \beta_0 - \beta_1 X_i$. Then $$
+\frac{\partial S}{\partial \beta_0} = -2\sum_{i=1}^n e_i = 0, \quad
+\frac{\partial S}{\partial \beta_1} = -2\sum_{i=1}^n X_i e_i = 0
+$$ So the normal equations are: $$
+\sum_{i=1}^n (Y_i - \beta_0 - \beta_1 X_i) = 0, \quad
+\sum_{i=1}^n X_i (Y_i - \beta_0 - \beta_1 X_i) = 0
+$$
+
+Solving these yields (see Exercise 0.2 derivation below): $$
+\hat\beta_1 = \frac{\sum_{i=1}^n (X_i - \bar X)(Y_i - \bar Y)}{\sum_{i=1}^n (X_i - \bar X)^2}, \quad
+\hat\beta_0 = \bar Y - \hat\beta_1 \bar X
+$$
+
+### Step 6. Plug back to get $\hat\sigma^2_{\text{MLE}}$
+
+Let residuals at the MLE be
+$\hat e_i = Y_i - \hat\beta_0 - \hat\beta_1 X_i$. The log-likelihood
+derivative w.r.t. $\sigma^2$ gives
+
+$$
+\hat\sigma^2_{\text{MLE}} = \frac{1}{n}\sum_{i=1}^n \hat e_i^2 = \text{RSS}/n
+$$
+
+### Step 7. Bias adjustment (not strictly part of MLE, but common)
+
+The unbiased estimator: $$
+\hat\sigma^2 = \frac{1}{n-2}\sum_{i=1}^n \hat e_i^2 = \text{RSS}/(n-2)
+$$
+
+### Step 8. Summary
+
+-   MLE / LS coincide for $\beta_0,\beta_1$ under normal errors.
+-   $\hat\beta_1$ = sample covariance over sample variance of $X$.
+-   $\hat\beta_0$ aligns fitted line to pass through $(\bar X,\bar Y)$.
+-   $\hat\sigma^2_{\text{MLE}} = \text{RSS}/n$ (biased); unbiased uses
+    $n-2$.
+
+The standard, classic approach to estimating the $\beta$ parameters is
+to use least squares, which doesn’t require distributional assumptions.
+
+Least squares finds the $\beta_0$ and $\beta_1$ that minimize the
+following criterion:
+
+$$
+Q_{\text{LS}}(\beta_0,\beta_1) = \sum_{i=1}^n \left(Y_i - (\beta_0 + \beta_1 X_i)\right)^2
+$$
+
+**Exercise 0.2**. Show that, for simple linear regression, the least
+squares estimators are:
+
+$$
+\hat\beta_1 = \frac{\sum_i{(Y_i - \bar Y)(X_i - \bar X)}}{\sum_i(X_i - \bar X)^2} = \frac{s_{xy}}{s_{xx}}
+$$ and
+
+$$
+\hat \beta_0 = \bar Y - \hat\beta_1\bar X
+$$
+
+### Step 1. Define sums and notation
+
+Let $$
+\bar X = \frac{1}{n}\sum_{i=1}^n X_i,\quad \bar Y = \frac{1}{n}\sum_{i=1}^n Y_i
+$$ Define centered quantities: $$
+s_{xx} = \sum_{i=1}^n (X_i - \bar X)^2,\quad
+s_{xy} = \sum_{i=1}^n (X_i - \bar X)(Y_i - \bar Y)
+$$
+
+### Step 2. Write residuals
+
+$$
+e_i = Y_i - \beta_0 - \beta_1 X_i
+$$
+
+### Step 3. First-order conditions
+
+Set partial derivatives of $Q_{LS}$ to zero: $$
+\frac{\partial Q_{LS}}{\partial \beta_0} = -2\sum_{i=1}^n e_i = 0 \Rightarrow \sum_{i=1}^n e_i = 0
+$$ $$
+\frac{\partial Q_{LS}}{\partial \beta_1} = -2\sum_{i=1}^n X_i e_i = 0 \Rightarrow \sum_{i=1}^n X_i e_i = 0
+$$
+
+### Step 4. Expand the first normal equation
+
+$$
+\sum_{i=1}^n (Y_i - \beta_0 - \beta_1 X_i) = 0
+\Rightarrow \sum Y_i - n\beta_0 - \beta_1 \sum X_i = 0
+\Rightarrow n\bar Y - n\beta_0 - \beta_1 n\bar X = 0
+\Rightarrow \beta_0 = \bar Y - \beta_1 \bar X
+$$
+
+### Step 5. Substitute into second equation
+
+Second normal equation: $$
+\sum_{i=1}^n X_i (Y_i - \beta_0 - \beta_1 X_i) = 0
+$$ Plug $\beta_0 = \bar Y - \beta_1 \bar X$:
+
+$$
+\sum X_i \left[Y_i - (\bar Y - \beta_1 \bar X) - \beta_1 X_i\right] = 0
+\Rightarrow \sum X_i (Y_i - \bar Y) + \beta_1 \sum X_i (\bar X - X_i) = 0
+$$
+
+Note that $$
+\sum X_i (\bar X - X_i) = \bar X \sum X_i - \sum X_i^2 = n\bar X^2 - \sum X_i^2 = -\sum (X_i - \bar X)^2 = -s_{xx}
+$$
+
+Also
+
+$$
+\sum X_i (Y_i - \bar Y) = \sum (X_i - \bar X)(Y_i - \bar Y) = s_{xy}
+$$
+
+So: $$
+s_{xy} + \beta_1 (-s_{xx}) = 0 \Rightarrow \beta_1 = \frac{s_{xy}}{s_{xx}}
+$$
+
+### Step 6. Final expressions
+
+$$
+\hat\beta_1 = \frac{\sum_{i=1}^n (X_i - \bar X)(Y_i - \bar Y)}{\sum_{i=1}^n (X_i - \bar X)^2} = \frac{s_{xy}}{s_{xx}}
+$$
+
+$$
+\hat\beta_0 = \bar Y - \hat\beta_1 \bar X
+$$
+
+### Step 7. Interpretation
+
+-   The slope is the sample covariance divided by the sample variance of
+    $X$.
+-   The fitted line passes through $(\bar X,\bar Y)$.
+-   These are unique minimizers because $s_{xx} > 0$ unless all $X_i$
+    are identical.
+
+**Additional Basic Definitions**
+
+Once $\beta_0$ and $\beta_1$ are determined, the fitted values are: $$
+\hat Y_i = \hat\beta_0 + \hat\beta_1X_i\quad i=1,\dots,n
+$$ and the residuals are $$
+\hat\epsilon_i = Y_i− \hat Y_i\quad i= 1, 2,\dots, n
+$$ The quantity $$
+\text{RSS} = \sum^n_{i=1}\hat\epsilon^2_i
+$$ is called both the residual sum of squares (RSS) and the sum of
+squared errors (SSE).
+
+**Exercise 0.3**. Give practical interpretations of the fitted values
+and the residuals versus $\epsilon$.
+
+Given the simple linear regression model\
+$$
+Y_i = \beta_0 + \beta_1 X_i + \epsilon_i,\quad i=1,\dots,n
+$$\
+with fitted line\
+$$
+\hat Y_i = \hat\beta_0 + \hat\beta_1 X_i
+$$\
+and residuals\
+$$
+\hat\epsilon_i = Y_i - \hat Y_i
+$$
+
+### 1. Distinguish Three Related Quantities
+
+| Quantity | Symbol | Observable? | Depends on Parameters? | What It Represents |
+|-------------|-------------|-------------|------------------|---------------|
+| Error (noise, disturbance) | $\epsilon_i$ | No (unobservable) | Involves true $\beta_0,\beta_1$ | The true random deviation of $Y_i$ from the population regression function |
+| Residual | $\hat\epsilon_i$ | Yes (computed from data) | Uses estimates $\hat\beta_0,\hat\beta_1$ | Sample-based proxy for $\epsilon_i$; leftover after fitting |
+| Fitted value (prediction at training point) | $\hat Y_i$ | Yes | Uses estimates | Model’s best linear prediction for $Y_i$ given $X_i$ |
+
+### 2. Fitted Values $\hat Y_i$: Practical Interpretation
+
+-   Deterministic function of $X_i$ and the estimated coefficients.
+-   An estimate of the conditional mean $E[Y_i|X_i]$ (if the model is
+    correctly specified).
+-   In matrix form \$ \hat{\mathbf Y} = \mathbf H \mathbf Y\$, where
+    $\mathbf H$ is the hat (projection) matrix. This shows each
+    $\hat Y_i$ is a weighted average of all observed responses.
+-   The set of fitted points lies exactly on the estimated line; the
+    line passes through $(\bar X,\bar Y)$.
+
+### 3. Residuals $\hat\epsilon_i$: Practical Interpretation
+
+-   They measure how far each observed $Y_i$ falls above ($+$) or below
+    ($-$) the fitted line.
+-   They are not the true errors; they are shrunken, constrained
+    approximations.
+-   Two key algebraic constraints (for models with intercept):
+    -   $\sum_{i=1}^n \hat\epsilon_i = 0$
+    -   $\sum_{i=1}^n X_i \hat\epsilon_i = 0$ These reflect
+        orthogonality of residuals to the columns of the design matrix.
+-   Because of these constraints, residuals tend to understate the true
+    variability of the errors—hence division by $(n-2)$ (not $n$) in the
+    unbiased estimator of $\sigma^2$.
+-   Patterns (non-random structure) in a residual plot vs. $X$ or
+    $\hat Y$ suggest model misspecification (nonlinearity,
+    heteroskedasticity, omitted variables, etc.).
+
+### 4. True Errors $\epsilon_i$: Practical Interpretation
+
+-   Conceptual random shocks: what you would still not predict even if
+    you knew the true regression function and parameters.
+-   You never observe them directly; inference about their distribution
+    (e.g., normality) is made via residual diagnostics.
+-   Assumptions about $\epsilon_i$ justify:
+    -   Unbiasedness and variance formulas for $\hat\beta_0,\hat\beta_1$
+    -   Sampling distributions (normal or approximately normal)
+    -   Validity of standard errors, confidence intervals, hypothesis
+        tests
+
+### 5. Relationship Summary
+
+$$
+Y_i = \underbrace{(\beta_0 + \beta_1 X_i)}_{\text{true systematic part}} + \underbrace{\epsilon_i}_{\text{true noise}}
+$$
+
+$$
+Y_i = \underbrace{(\hat\beta_0 + \hat\beta_1 X_i)}_{\text{estimated systematic part}} + \underbrace{\hat\epsilon_i}_{\text{observed leftover}}
+$$ Residuals approximate errors, but they are "filtered" through the
+fitting process; they are *not* independent (even if errors are) and
+have reduced variance.
+
+### 6. Practical Uses
+
+-   Fitted values: prediction, visualization of trend.
+-   Residuals: diagnostics (linearity, equal variance, outliers,
+    leverage/influence).
+-   Errors: theoretical constructs enabling probability-based inference.
+
+## Why Least Squares?
+
+Why minimize the sum of squared errors and not another quantity? For
+example, we could minimize the sum of absolute errors:
+
+$$
+Q_{L1}(\beta_0, \beta_1) = \sum^n_{i=1}|Y_i− (\beta_0 + \beta_1X_i)|
+$$
+
+Minimizing $Q_\text{L1}$ is indeed possible; it is referred to as L1
+Regression. There are several reasons why people have focused on least
+squares: 1. Computational Efficiency: It is straightforward to derive
+the least squares estimators of $\beta_0$ and $\beta_1$, as well as
+properties of them (e.g., means and variances). 2. The Gauss-Markov
+Theorem: Under the three basic assumptions given above, the least
+squares estimators of $\beta_0$ and $\beta_1$ are unbiased and have
+minimum variance among all unbiased estimators. 3. Least squares gives
+the MLE when the ϵi are independent and normally distributed. 4. The
+regression function $\text{E}(Y | X)$ is the mean-squared optimal
+predictor of $Y$.
+
+**Exercise 0.4**. Recall that our regression model is
+$Y= f (X) + \epsilon$, where $f(X)$ is the regression function. Show
+that $f(X) = \text{E}[Y | X]$ minimizes MSE.
+
+We want to find a (measurable) function $g$ of $X$ minimizing $$
+\text{MSE}(g) = E\big[(Y - g(X))^2\big]
+$$
+
+### Step 1. Condition on $X$
+
+$$
+E[(Y - g(X))^2] = E\Big[ E\big[(Y - g(X))^2 \mid X\big] \Big]
+$$ So it suffices to minimize the *conditional* risk pointwise in $X$.
+
+### Step 2. Pointwise Problem
+
+Fix $X=x$. Let $m(x)=E[Y|X=x]$. Consider: $$
+E[(Y - g(x))^2 \mid X=x]
+$$
+
+Add and subtract $m(x)$: $$
+Y - g(x) = (Y - m(x)) + (m(x) - g(x))
+$$
+
+Square and take conditional expectation: $$
+E[(Y - g(x))^2 \mid X=x]
+= E[(Y - m(x))^2 \mid X=x] + (m(x) - g(x))^2 + 2(m(x)-g(x))E[Y-m(x)\mid X=x]
+$$ The cross term vanishes because $$
+E[Y-m(x)\mid X=x]=0
+$$
+
+Thus: $$
+E[(Y - g(x))^2 \mid X=x] = \underbrace{E[(Y - m(x))^2 \mid X=x]}_{\text{Var}(Y|X=x)} + (m(x) - g(x))^2
+$$
+
+### Step 3. Minimize Pointwise
+
+For each $x$, $\text{Var}(Y|X=x)$ does not depend on $g(x)$; the
+expression is minimized by making the squared term zero: $$
+g(x) = m(x) = E[Y|X=x]
+$$
+
+### Step 4. Conclude and Give Decomposition
+
+Therefore the global minimizer is $$
+f^*(X) = E[Y|X]
+$$ and the minimum MSE is $$
+E\big[\text{Var}(Y|X)\big]
+$$
+
+This yields the fundamental decomposition (law of total variance): $$
+E[(Y - g(X))^2] = E[\text{Var}(Y|X)] + E[(E[Y|X] - g(X))^2]
+$$ The second term is nonnegative and equals zero iff $g(X)=E[Y|X]$
+almost surely, proving uniqueness (up to events of probability zero).
+
+### Step 5. Interpretation
+
+-   $E[Y|X]$ is the best (mean-squared optimal) predictor using *any*
+    function of $X$.
+-   Linear regression restricts $g$ to be linear; then the "optimal
+    linear predictor" is the projection of $Y$ onto the linear span of
+    $\{1,X\}$; its population form coincides with $E[Y|X]$ only if the
+    true regression function is affine in $X$.
+-   The irreducible error is $E[\text{Var}(Y|X)]$; everything else is
+    approximation error due to using a suboptimal $g$.
+
+### Step 6. Orthogonality (Geometric View)
+
+Define the error of the optimal predictor: $$
+Y - E[Y|X]
+$$ Then for any square-integrable $h(X)$: $$
+E\big[(Y - E[Y|X])\,h(X)\big]=0
+$$ This orthogonality characterizes conditional expectation as the $L^2$
+projection of $Y$ onto the space of functions of $X$.
+
+**Exercise 0.5**. Assuming $f (X) = \text{E}[Y | X]$, what is the
+optimal linear predictor? How is RSS related to MSE?
+
+### (A) Optimal Linear Predictor
+
+We restrict attention to predictors of the form $g(X)=a + b X$ (i.e.,
+linear in $X$). We want to minimize the population mean squared error:
+$$
+R(a,b) = E\big[(Y - (a + bX))^2\big]
+$$
+
+Take partial derivatives (treating expectations as integrals):
+
+1.  Derivative w.r.t. $a$: $$
+    \frac{\partial R}{\partial a} = -2 E\big[Y - (a + bX)\big] = 0 \;\Rightarrow\; E[Y] - a - b E[X] = 0
+    \Rightarrow a = E[Y] - b E[X]
+    $$
+
+2.  Derivative w.r.t. $b$: $$
+    \frac{\partial R}{\partial b} = -2 E\big[X (Y - (a + bX))\big] = 0
+    $$ Substitute $a = E[Y] - b E[X]$: $$
+    E\big[X Y\big] - (E[Y] - b E[X])E[X] - b E[X^2] = 0
+    $$ Rearrange terms: $$
+    E[XY] - E[X]E[Y] - b\big(E[X^2] - (E[X])^2\big)=0
+    $$ Hence: $$
+    b^* = \frac{\text{Cov}(X,Y)}{\text{Var}(X)}, \qquad a^* = E[Y] - b^* E[X]
+    $$
+
+Thus the optimal linear predictor (population) is: $$
+g^*(X) = a^* + b^* X = E[Y] + \frac{\text{Cov}(X,Y)}{\text{Var}(X)}\big(X - E[X]\big)
+$$
+
+### (B) Connection to the Simple Linear Regression Model
+
+Under the model $Y = \beta_0 + \beta_1 X + \epsilon$ with
+$E[\epsilon|X]=0$: - $E[Y] = \beta_0 + \beta_1 E[X]$ -
+$\text{Cov}(X,Y) = \text{Cov}(X,\beta_0 + \beta_1 X + \epsilon) = \beta_1 \text{Var}(X)$
+
+Therefore: $$
+b^* = \beta_1,\quad a^* = \beta_0
+$$ So the optimal linear predictor coincides with the true regression
+function. This confirms that in the correctly specified simple linear
+model the projection onto the space of linear functions recovers
+$f(X)=E[Y|X]$.
+
+If the true regression function were nonlinear, the formulas above give
+the best (in MSE) *linear* approximation—i.e., the $L^2$ projection of
+$Y$ onto the span of {1, X}.
+
+### (C) Relation of RSS to (Population) MSE
+
+Population target (irreducible part): $$
+\text{Optimal MSE} = E\big[(Y - E[Y|X])^2\big] = E[\text{Var}(Y|X)]
+$$ Under the homoskedastic simple linear model
+$Y = \beta_0 + \beta_1 X + \epsilon$ with
+$E[\epsilon|X]=0, \text{Var}(\epsilon|X)=\sigma^2$: $$
+E\big[(Y - E[Y|X])^2\big] = \sigma^2
+$$
+
+Sample counterpart: $$
+\text{RSS} = \sum_{i=1}^n (Y_i - \hat Y_i)^2
+$$
+
+Key facts (conditioning on the observed design values): -
+$E[\text{RSS} \mid X_1,\dots,X_n] = (n-2)\sigma^2$ - Hence
+$\hat\sigma^2 = \text{RSS}/(n-2)$ is unbiased for $\sigma^2$ - While
+$\text{RSS}/n$ underestimates $\sigma^2$ (downward bias factor
+$(n-2)/n$)
+
+Interpretation: - $\sigma^2$ is the *population* MSE of the *optimal*
+predictor $E[Y|X]$ - The *training* (in-sample) average squared residual
+$\text{RSS}/n$ is too optimistic because the same data were used to
+estimate two parameters; each estimated parameter effectively “uses up”
+one degree of freedom, reducing residual variability - Adjusting by
+$(n-2)$ corrects this optimism in expectation
+
+Thus, RSS is a *sample* realization approximating $(n-2)\sigma^2$;
+dividing by $(n-2)$ produces an unbiased estimator of the population MSE
+(the noise variance) under the model.
+
+### (D) Bias–Variance (Projection) View
+
+Let $\mathcal{L} = \text{span}\{1,X\}$. The fitted values form the
+orthogonal projection $\hat Y = P_{\mathcal{L}} Y$; residuals are
+$(I - P_{\mathcal{L}}) Y$. The projection has rank 2 (intercept and
+slope), so the residual subspace has dimension $n-2$. Because the error
+vector $\epsilon$ has covariance $\sigma^2 I$, the squared length of its
+projection onto an $(n-2)$-dimensional subspace is
+$\sigma^2 \chi^2_{n-2}$, giving the expectation result immediately.
+
+## Estimation $\sigma^2$
+
+The variance $\sigma^2$ comes from a distributional assumption on the
+residuals $\epsilon_i$. If $\epsilon_i | X_i\sim^{iid} N(0, \sigma^2)$,
+then the MLE for $\sigma^2$ is
+
+$$
+\hat\sigma^2_{\text{MLE}} = \bigg(\frac{1}{n}\bigg)\sum^n_{i=1}\hat\epsilon^2_i = \text{RSS} / n
+$$
+
+This estimator is biased. Meanwhile, this adjusted estimator is
+unbiased:
+
+$$
+\hat\sigma^2 = \bigg(\frac{n}{n-2}\bigg)\hat\sigma^2_{MLE} = \text{RSS} / (n-2)
+$$
+
+This is the estimator we will typically use, and what is reported by R
+and other software packages. R calls $\sigma^2$ the “residual standard
+error.
+
+**Exercise 0.6**. What’s the intuition for dividing by $(n− 2)$?
+
+We estimate two parameters ($\beta_0, \beta_1$) before assessing the
+noise variance. Why not divide by $n$? Several complementary
+perspectives:
+
+### 1. Constraint (Algebraic) Perspective
+
+The residuals $\hat\epsilon_i = Y_i - \hat\beta_0 - \hat\beta_1 X_i$
+satisfy two exact linear constraints (with an intercept in the model):
+$$
+\sum_{i=1}^n \hat\epsilon_i = 0,\qquad \sum_{i=1}^n X_i \hat\epsilon_i = 0
+$$ These reduce the “free” degrees of freedom in the residual vector
+from $n$ to $n-2$. Only $n-2$ components can vary independently, so the
+aggregate squared residual should be normalized by $n-2$, not $n$.
+
+### 2. Projection (Geometric) Perspective
+
+Think of $\mathbf Y = \mathbf X\beta + \epsilon$, where $\mathbf X$ is
+the $n \times 2$ design matrix with columns $1$ and $X$. Least squares
+projects $\mathbf Y$ onto the 2-dimensional column space of $\mathbf X$.
+The residual vector lies in the orthogonal complement, which has
+dimension $n-2$. With spherical errors ($\sigma^2 I$), the expected
+squared length of the projection onto an $m$-dimensional subspace is
+$m \sigma^2$. Here $m = n-2$, giving: $$
+E[\text{RSS}] = (n-2)\sigma^2
+$$
+
+### 3. Unbiasedness Calculation
+
+Starting from: $$
+\text{RSS} = \sum_{i=1}^n (Y_i - \hat\beta_0 - \hat\beta_1 X_i)^2
+$$ and using linear model theory (or the projection argument), one
+shows: $$
+E[\text{RSS}|X_1,\dots,X_n] = (n-2)\sigma^2 \;\Rightarrow\; E\left[\frac{\text{RSS}}{n-2}\right] = \sigma^2
+$$ Dividing by $n$ would yield expectation
+$(n-2)\sigma^2 / n < \sigma^2$, hence biased downward.
+
+### 4. Overfitting / Optimism Perspective
+
+Fitting parameters uses information from the data to reduce apparent
+error. Each parameter you estimate “soaks up” some variability, lowering
+naive residual variance. The degrees-of-freedom adjustment corrects this
+over-optimism: you give back one degree of freedom per parameter
+estimated (here: two).
+
+### 5. Analogy to Sample Variance
+
+For iid data $(Z_i)$ with mean $\mu$, the unbiased variance estimator
+divides by $(n-1)$ because the sample mean is estimated. In regression,
+you estimate two parameters instead of one, so you lose two degrees of
+freedom.
+
+### 6. Distributional Consequence
+
+Under normal errors: $$
+\frac{\text{RSS}}{\sigma^2} \sim \chi^2_{n-2}
+$$ Dividing by $n-2$ makes $\hat\sigma^2$ the (scaled) maximum
+likelihood estimator adjusted to become unbiased and gives exact $t$ and
+$F$ distributions for inference.
+
+## Linear Regression in R
+
+In R, we use the `lm()` function to fit linear models using least
+squares. It takes two key arguments: - A model formula, which is special
+syntax for specifying the outcome and covariates. - A data frame
+providing the observed data, which must contain columns whose names
+match the terms in the model formula.
+
+Model formulas place the outcome to the left of\~ and covariates to the
+right, separated by + signs.
+
+Formulas can contain transformations and some useful functions: -
+`mpg ~ disp` fits a model with mpg as the outcome and disp as the
+covariate. - `mpg ~ log(disp)` log-transforms disp. - `mpg ~ I(dispˆ2)`
+takes the square of disp. I() is necessary because theˆ operator has a
+specific meaning in formulas, so I() tells R to ignore this and evaluate
+it as-is. - `mpg ~ disp - 1` removes the intercept from the model.
+
+The `lm()` function returns a fit object containing the data, fit
+parameters, estimates, and various other useful information.
+
+Example 0.1. Let’s return to the Bureau of Economic Analysis (BEA) data
+example. We’ll again consider per-capital GMP (`pcgmp`) as the outcome
+and use population (`pop`) as the covariate. We’ll log-transform
+population, because our initial EDA suggested the relationship is linear
+after log-transformation.
+
+```{r}
+bea_url <- "https://www.stat.cmu.edu/~cshalizi/TALR/data/bea-2006.csv"
+bea <- read.csv(bea_url, na.strings = c("NA", "", "."))
+
+bea_fit <- lm(pcgmp ~ log(pop), data = bea)
+summary(bea_fit)
+```
+
+To get the estimates in code, we can use the `coef()` (or
+`coefficients()`) function, which returns a named vector of estimates:
+
+```{r}
+coef(bea_fit)
+```
+
+```{r}
+coef(bea_fit)["log(pop)"]
+```
