@@ -53,11 +53,14 @@ assumptions about the ϵi to justify our conclusions. Because we are
 conditioning on Xi and β0, β1 are fixed unknown parameters, $\epsilon_i$
 is the only random variable in the linear regression model.
 
-The base assumptions associated with simple linear regression are: 1.
-Mean-Zero Noise: $\text{E}(\epsilon_i | X_i) = 0$ for all $i$ 2.
-Constant Variance (“homoskedasticity”)
-$\text{Var}(\epsilon_i | X_i) = \sigma_2$ for all $i$ 3. Uncorrelated
-Noise: The ϵi are uncorrelated, i.e.,
+The base assumptions associated with simple linear regression are:
+
+1\. Mean-Zero Noise: $\text{E}(\epsilon_i | X_i) = 0$ for all $i$
+
+2\. Constant Variance (“homoskedasticity”)
+$\text{Var}(\epsilon_i | X_i) = \sigma_2$ for all $i$
+
+3\. Uncorrelated Noise: The ϵi are uncorrelated, i.e.,
 $\text{Cov}(\epsilon_i, \epsilon_j | X_i) = 0$ for all $i \ne j$.
 
 Additional assumptions, if justified, lead to stronger results. For
@@ -283,7 +286,7 @@ $$
 ### 1. Distinguish Three Related Quantities
 
 | Quantity | Symbol | Observable? | Depends on Parameters? | What It Represents |
-|-------------|-------------|-------------|------------------|---------------|
+|----|----|----|----|----|
 | Error (noise, disturbance) | $\epsilon_i$ | No (unobservable) | Involves true $\beta_0,\beta_1$ | The true random deviation of $Y_i$ from the population regression function |
 | Residual | $\hat\epsilon_i$ | Yes (computed from data) | Uses estimates $\hat\beta_0,\hat\beta_1$ | Sample-based proxy for $\epsilon_i$; leftover after fitting |
 | Fitted value (prediction at training point) | $\hat Y_i$ | Yes | Uses estimates | Model’s best linear prediction for $Y_i$ given $X_i$ |
@@ -293,7 +296,7 @@ $$
 -   Deterministic function of $X_i$ and the estimated coefficients.
 -   An estimate of the conditional mean $E[Y_i|X_i]$ (if the model is
     correctly specified).
--   In matrix form \$ \hat{\mathbf Y} = \mathbf H \mathbf Y\$, where
+-   In matrix form $\hat{\mathbf{Y}} = \mathbf{H} \mathbf {Y}$, where
     $\mathbf H$ is the hat (projection) matrix. This shows each
     $\hat Y_i$ is a weighted average of all observed responses.
 -   The set of fitted points lies exactly on the estimated line; the
