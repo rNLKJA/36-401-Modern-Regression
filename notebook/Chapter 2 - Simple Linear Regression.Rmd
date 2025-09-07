@@ -286,7 +286,7 @@ $$
 ### 1. Distinguish Three Related Quantities
 
 | Quantity | Symbol | Observable? | Depends on Parameters? | What It Represents |
-|----|----|----|----|----|
+|---------------|---------------|---------------|---------------|---------------|
 | Error (noise, disturbance) | $\epsilon_i$ | No (unobservable) | Involves true $\beta_0,\beta_1$ | The true random deviation of $Y_i$ from the population regression function |
 | Residual | $\hat\epsilon_i$ | Yes (computed from data) | Uses estimates $\hat\beta_0,\hat\beta_1$ | Sample-based proxy for $\epsilon_i$; leftover after fitting |
 | Fitted value (prediction at training point) | $\hat Y_i$ | Yes | Uses estimates | Model’s best linear prediction for $Y_i$ given $X_i$ |
@@ -515,12 +515,17 @@ $\hat\sigma^2 = \text{RSS}/(n-2)$ is unbiased for $\sigma^2$ - While
 $\text{RSS}/n$ underestimates $\sigma^2$ (downward bias factor
 $(n-2)/n$)
 
-Interpretation: - $\sigma^2$ is the *population* MSE of the *optimal*
-predictor $E[Y|X]$ - The *training* (in-sample) average squared residual
-$\text{RSS}/n$ is too optimistic because the same data were used to
-estimate two parameters; each estimated parameter effectively “uses up”
-one degree of freedom, reducing residual variability - Adjusting by
-$(n-2)$ corrects this optimism in expectation
+Interpretation:
+
+\- $\sigma^2$ is the *population* MSE of the *optimal* predictor
+$E[Y|X]$
+
+\- The *training* (in-sample) average squared residual $\text{RSS}/n$ is
+too optimistic because the same data were used to estimate two
+parameters; each estimated parameter effectively “uses up” one degree of
+freedom, reducing residual variability
+
+\- Adjusting by $(n-2)$ corrects this optimism in expectation
 
 Thus, RSS is a *sample* realization approximating $(n-2)\sigma^2$;
 dividing by $(n-2)$ produces an unbiased estimator of the population MSE
