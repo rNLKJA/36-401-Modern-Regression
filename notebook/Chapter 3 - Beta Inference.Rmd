@@ -1,0 +1,829 @@
+---
+title: "36-401, Chapter 2: Simple Linear Regression"
+output: rmarkdown::github_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+## Basic Properties of the $\beta$
+
+In this chapter, we’ll still consider the simple linear regression
+model, which involves parameters $\beta_0$, $\beta_1$, and $\sigma_2$.
+We’ll focus on the least squares estimators $\beta_0$ and $\beta_1$, and
+study properties about these estimators. We’ll also consider
+consequences of having to estimate the variance $\sigma_2$.
+
+First, let’s recall the three basic assumptions of simple linear
+regression: 1. Mean-Zero Noise: $\mathbb{E}(\epsilon_i | X_i) = 0$ for
+all $i$ 2. Constant Variance (“homoskedasticity”)
+$\text{Var}(\epsilon_i | X_i) = \sigma_2$ for all $i$ 3. Uncorrelated
+Noise: The $\epsilon_i$ are uncorrelated, i.e.,
+$\text{Cov}(\epsilon_i, \epsilon+j | X+i) = 0$ for all $i \ne j$.
+
+As we’ve seen, the least squares estimators are:
+
+$$
+\hat\beta_1 = \frac{\sum_i(Y_i - \bar Y)(X_i - \bar X)}{\sum_i(X_i - \bar X)^2} = \frac{s_{xy}}{s_{xx}}
+$$
+
+$$
+\hat\beta_0 = \bar Y - \hat\beta_1 \bar X
+$$
+
+Under the above assumptions, we can find the following properties for
+$\hat\beta_0$ and $\hat\beta_1$ hold:
+
+------------------------------------------------------------------------
+
+1.  Linearity\
+    $\hat\beta_1 = \sum_{i=1}^n w_i Y_i,\quad w_i = \frac{X_i - \bar X}{\sum_{j=1}^n (X_j - \bar X)^2},\ \sum_i w_i = 0$\
+    $\hat\beta_0 = \sum_{i=1}^n a_i Y_i,\quad a_i = \frac{1}{n} - \bar X w_i,\ \sum_i a_i = 1$
+
+2.  Unbiasedness (conditioning on the fixed design $X_1,\dots,X_n$)\
+    $\mathbb{E}(\hat\beta_1 \mid X) = \beta_1,\qquad \mathbb{E}(\hat\beta_0 \mid X) = \beta_0$
+
+3.  Variances\
+    $\text{Var}(\hat\beta_1 \mid X) = \frac{\sigma^2}{s_{xx}},\qquad s_{xx} = \sum_{i=1}^n (X_i - \bar X)^2$\
+    $\text{Var}(\hat\beta_0 \mid X) = \sigma^2\left(\frac{1}{n} + \frac{\bar X^2}{s_{xx}}\right)$
+
+4.  Covariance\
+    $\text{Cov}(\hat\beta_0,\hat\beta_1 \mid X) = -\,\frac{\bar X \sigma^2}{s_{xx}}$
+
+5.  Correlation\
+    $\text{Corr}(\hat\beta_0,\hat\beta_1 \mid X) = - \frac{\bar X}{\sqrt{ s_{xx}/n + \bar X^2 }}$
+
+6.  Sampling distributions
+
+    -   Without assuming normal errors: they are unbiased with the above
+        variances; asymptotically normal (under mild conditions).\
+    -   If $\epsilon_i \sim \mathcal{N}(0,\sigma^2)$ i.i.d.:\
+        $\hat\beta_1 \mid X \sim \mathcal{N}\!\left(\beta_1,\frac{\sigma^2}{s_{xx}}\right),\quad \hat\beta_0 \mid X \sim \mathcal{N}\!\left(\beta_0,\sigma^2\left(\frac{1}{n} + \frac{\bar X^2}{s_{xx}}\right)\right)$\
+        Jointly bivariate normal with the stated covariance.
+
+7.  Estimation of $\sigma^2$\
+    Residuals $e_i = Y_i - \hat\beta_0 - \hat\beta_1 X_i$\
+    $\text{SSE} = \sum_{i=1}^n e_i^2,\qquad \hat\sigma^2 = \frac{\text{SSE}}{n-2}$
+    (unbiased)
+
+8.  Standard errors (plug in $\hat\sigma^2$)\
+    $\text{SE}(\hat\beta_1) = \sqrt{\frac{\hat\sigma^2}{s_{xx}}},\qquad \text{SE}(\hat\beta_0) = \sqrt{ \hat\sigma^2\left(\frac{1}{n} + \frac{\bar X^2}{s_{xx}}\right) }$
+
+9.  t-statistics (normal error assumption)\
+    $t_j = \frac{\hat\beta_j - \beta_j^{(0)}}{\text{SE}(\hat\beta_j)} \sim t_{n-2}\quad (j=0,1)$
+
+10. Confidence intervals (level $1-\alpha$)\
+    $\hat\beta_j \pm t_{1-\alpha/2,\ n-2}\ \text{SE}(\hat\beta_j),\quad j=0,1$
+
+11. Gauss–Markov (efficiency)\
+    $\hat\beta_0,\hat\beta_1$ are BLUE: Best (minimum variance) Linear
+    Unbiased Estimators under the three core assumptions.
+
+12. Prediction / mean response at a new $x_0$\
+    Mean estimator: $\hat\mu(x_0) = \hat\beta_0 + \hat\beta_1 x_0$\
+    $\text{Var}(\hat\mu(x_0) \mid X) = \sigma^2\left(\frac{1}{n} + \frac{(x_0 - \bar X)^2}{s_{xx}}\right)$\
+    Prediction variance for a future $Y_0$:\
+    $\text{Var}(Y_0 - \hat\mu(x_0) \mid X) = \sigma^2\left(1 + \frac{1}{n} + \frac{(x_0 - \bar X)^2}{s_{xx}}\right)$
+
+------------------------------------------------------------------------
+
+To prove the above results, it is useful to note the following fact:
+$\hat\beta_1$ can be written as a linear combination of the $Y_i$ in the
+following way.
+
+$$
+\hat\beta_1 = \sum^n_{i=1}k_iY_i,\quad \text{where }k_i = \frac{X_i - \bar X}{\sum^n_{i=1}(X_j - \bar X)^2} 
+$$ **Exercise 0.1**. Prove that the variance of $\hat\beta_1$ takes the
+stated from.
+
+Goal: Prove that $\text{Var}(\hat\beta_1 \mid X) = \sigma^2 / s_{xx}$,
+where $s_{xx} = \sum_{i=1}^n (X_i - \bar X)^2$.
+
+### Step 1: Start from the model
+
+$$
+Y_i = \beta_0 + \beta_1 X_i + \epsilon_i,\quad \mathbb{E}(\epsilon_i \mid X)=0,\quad \text{Var}(\epsilon_i \mid X)=\sigma^2,\quad \text{Cov}(\epsilon_i,\epsilon_j \mid X)=0\ (i\ne j)
+$$
+
+### Step 2: Write $\hat\beta_1$ in a form using only errors
+
+Recall $$
+\hat\beta_1 = \frac{\sum_{i=1}^n (X_i - \bar X)(Y_i - \bar Y)}{s_{xx}}
+$$ Substitute $Y_i = \beta_0 + \beta_1 X_i + \epsilon_i$ and note
+$\bar Y = \beta_0 + \beta_1 \bar X + \bar\epsilon$ with
+$\bar\epsilon = \frac{1}{n}\sum_{i=1}^n \epsilon_i$: $$
+Y_i - \bar Y = \beta_1(X_i - \bar X) + (\epsilon_i - \bar\epsilon)
+$$ Then $$
+\hat\beta_1 = \frac{\sum (X_i - \bar X)\big[\beta_1(X_i - \bar X) + (\epsilon_i - \bar\epsilon)\big]}{s_{xx}}
+= \beta_1 + \frac{\sum (X_i - \bar X)(\epsilon_i - \bar\epsilon)}{s_{xx}}
+$$ But $$
+\sum_{i=1}^n (X_i - \bar X)\bar\epsilon = \bar\epsilon \sum_{i=1}^n (X_i - \bar X) = 0
+$$ Hence $$
+\hat\beta_1 = \beta_1 + \frac{\sum_{i=1}^n (X_i - \bar X)\epsilon_i}{s_{xx}}
+$$
+
+### Step 3: Variance
+
+Conditioning on the design (the $X_i$ treated as constants): $$
+\text{Var}(\hat\beta_1 \mid X) = \text{Var}\left(\frac{\sum (X_i - \bar X)\epsilon_i}{s_{xx}} \mid X\right)
+= \frac{1}{s_{xx}^2} \text{Var}\left(\sum (X_i - \bar X)\epsilon_i \mid X\right)
+$$ Errors are uncorrelated with common variance $\sigma^2$, so $$
+\text{Var}\left(\sum (X_i - \bar X)\epsilon_i \mid X\right)
+= \sum (X_i - \bar X)^2 \sigma^2 = \sigma^2 s_{xx}
+$$ Therefore $$
+\text{Var}(\hat\beta_1 \mid X) = \frac{\sigma^2 s_{xx}}{s_{xx}^2} = \frac{\sigma^2}{s_{xx}}
+$$
+
+### Step 4: Alternative “weights” view
+
+Define weights $$
+w_i = \frac{X_i - \bar X}{s_{xx}},\quad \hat\beta_1 = \sum_{i=1}^n w_i Y_i
+$$ Then $$
+\text{Var}(\hat\beta_1 \mid X) = \sum_{i=1}^n w_i^2 \sigma^2 = \sigma^2 \sum \frac{(X_i - \bar X)^2}{s_{xx}^2} = \frac{\sigma^2}{s_{xx}}
+$$ Same result.
+
+That completes the proof.
+
+------------------------------------------------------------------------
+
+An important quantity for inference will be the standard error. The
+stan- dard error of an estimator is the square root of its variance. As
+we saw above, the variance may have to be estimated, such that the
+standard error will also have to be estimated. Thus, we have:
+
+$$
+\text{SE}(\hat\beta) = \sqrt{\text{Var}(\hat\beta_1)}\quad \text{and } \hat{\text{SE}}(\hat\beta_1) = \sqrt{\hat{\text{Var}}(\hat\beta_1)} 
+$$
+
+The estimated SEs are displayed in `summary` output in R.
+
+Exercise 0.2. Let’s consider the BEA example from previous chapters;
+`summary()` output is shown below. State and interpret the standard
+errors.
+
+```{r}
+bea_url <- "https://www.stat.cmu.edu/~cshalizi/TALR/data/bea-2006.csv"
+bea <- read.csv(bea_url, na.strings = c("NA", "", "."))
+bea_fit <- lm(pcgmp ~ log(pop), data = bea)
+
+summary(bea_fit)
+```
+
+You fit: $$
+\text{pcgmp}_i = \beta_0 + \beta_1 \log(\text{pop}_i) + \epsilon_i
+$$
+
+R output (relevant parts): - Estimate (Intercept): $-23306.2$, Std.
+Error: $4957.1$ - Estimate $\beta_1$ (log(pop)): $4449.8$, Std. Error:
+$390.9$ - Residual standard error (RSE): $7929$ on 364 df
+
+### What the standard errors mean
+
+A standard error (SE) is the estimated standard deviation of the
+sampling distribution of the estimator, reflecting how much the estimate
+would typically fluctuate over repeated samples with the same design.
+
+1.  Slope SE $390.9$:
+    -   Interpretation: If we repeatedly sampled regions (or
+        jurisdictions) from the same super-population and refit the
+        model each time, the slope estimates for $\beta_1$ would
+        typically vary by about $391$ around the true $\beta_1$.
+    -   Practical interpretation of the slope itself: A 1-unit increase
+        in $\log(\text{pop})$ (i.e., multiplying population by
+        $e \approx 2.718$) is associated with an average increase of
+        about $4449.8$ currency units in per-capita GMP.
+    -   Often more interpretable: effect of doubling population. A
+        doubling corresponds to adding $\log 2 \approx 0.693$: $$
+        \text{Estimated increase for doubling} = 4449.8 \times 0.693 \approx 3081
+        $$ Standard error for that contrast: $$
+        390.9 \times 0.693 \approx 271
+        $$ So doubling population is associated with an estimated
+        increase of about $3080$ (SE $\approx 270$) in per-capita GMP.
+2.  Intercept SE $4957.1$:
+    -   The intercept is the expected per-capita GMP when
+        $\log(\text{pop})=0\Rightarrow \text{pop}=1$. This population
+        value is far outside the realistic range (an “extrapolation”),
+        so while mathematically the SE tells us the precision of that
+        extrapolated baseline, substantively the intercept has little
+        direct meaning here.
+    -   Still, the SE indicates that across repeated samples
+        (hypothetically including such tiny populations), the fitted
+        intercept would vary by about $5000$ units.
+
+### (Optional) 95% confidence intervals
+
+Using large degrees of freedom, $t_{0.975,364} \approx 1.97$.
+
+-   Slope: $$
+    4449.8 \pm 1.97 \times 390.9 \approx 4449.8 \pm 770 \Rightarrow (3680,\ 5220)\ \text{(approx)}
+    $$ Interpretation: We are about 95% confident that the true increase
+    in per-capita GMP per 1-unit increase in $\log(\text{pop})$ lies
+    between roughly $3.7\text{k}$ and $5.2\text{k}$.
+
+-   Intercept: $$
+    -23306.2 \pm 1.97 \times 4957.1 \approx -23306.2 \pm 9770 \Rightarrow (-33000,\ -13500)\ \text{(approx)}
+    $$ Again, limited substantive value due to extrapolation.
+
+### Residual standard error (context)
+
+The residual standard error $7929$ estimates $\sigma$, the typical
+unexplained deviation of per-capita GMP from the regression line, after
+accounting for $\log(\text{pop})$. Compared with the slope magnitude
+($\approx 4450$ per log-unit), it suggests meaningful—but not
+overwhelming—explanatory power (consistent with R-squared
+$\approx 0.26$).
+
+### Summary Interpretation
+
+-   The slope is estimated very precisely (SE much smaller than the
+    estimate), giving a large t-statistic ($11.38$) and extremely small
+    p-value.
+-   Population size (on the log scale) is a statistically and
+    practically meaningful predictor of per-capita GMP.
+-   The intercept’s SE is large relative to its (extrapolated) context,
+    reinforcing that intercept interpretation should be cautious.
+
+------------------------------------------------------------------------
+
+## Adding on the Normality Assumption
+
+So far, we have not made any distributional assumptions. Given
+additional distributional assumptions, we will have additional
+properties that will be useful for inference. We’ll focus our discussion
+on inference for $\beta_1$. iid
+
+**Exercise 0.3**. Assume $Y_i =\beta_0 + \beta_1X_i + \epsilon_i$, where
+$\epsilon_i ∼ N(0, \sigma_2)$. Because $\beta_1 = \sum^n_{i=1}k_iY_i$,
+what can we say about the distribution of $β_1$ in this case?
+
+Assume the normal simple linear regression model: $$
+Y_i = \beta_0 + \beta_1 X_i + \epsilon_i,\quad \epsilon_i \stackrel{\text{i.i.d.}}{\sim} \mathcal{N}(0,\sigma^2)
+$$
+
+You have already written $$
+\hat\beta_1 = \sum_{i=1}^n k_i Y_i,\quad k_i = \frac{X_i - \bar X}{\sum_{j=1}^n (X_j - \bar X)^2} = \frac{X_i - \bar X}{s_{xx}},\quad \sum_{i=1}^n k_i = 0
+$$
+
+Each $Y_i = \beta_0 + \beta_1 X_i + \epsilon_i$ is normal; a fixed
+linear combination of jointly normal variables is normal. Therefore
+$\hat\beta_1$ is normal. Its mean and variance:
+
+$$
+\mathbb{E}(\hat\beta_1 \mid X) = \sum_{i=1}^n k_i (\beta_0 + \beta_1 X_i) = \beta_0 \sum k_i + \beta_1 \sum k_i X_i
+$$
+
+But $\sum k_i = 0$ and $$
+\sum_{i=1}^n k_i X_i = \frac{1}{s_{xx}} \sum (X_i - \bar X) X_i = \frac{1}{s_{xx}} \sum (X_i - \bar X)(X_i - \bar X + \bar X) = \frac{1}{s_{xx}} \sum (X_i - \bar X)^2 = 1
+$$
+
+Hence $\mathbb{E}(\hat\beta_1 \mid X) = \beta_1$.
+
+Variance (conditioning on $X$): $$
+\text{Var}(\hat\beta_1 \mid X) = \sum_{i=1}^n k_i^2 \sigma^2 = \sigma^2 \sum \frac{(X_i - \bar X)^2}{s_{xx}^2} = \frac{\sigma^2}{s_{xx}}
+$$
+
+Conclusion: $$
+\hat\beta_1 \mid X \sim \mathcal{N}\!\left(\beta_1,\; \frac{\sigma^2}{s_{xx}}\right)
+$$
+
+So under the normal error assumption, $\hat\beta_1$ is exactly (not just
+asymptotically) normal with the familiar mean and variance.
+
+From now on, when we assume $\epsilon_i ∼ N(0, \sigma_2)$, we will call
+the resulting model the normal simple linear regression model.
+
+A key result: Under the normal simple linear regression model, $$
+(\hat\beta_1 - \beta_1) / \hat{\text{SE}}(\hat\beta_1) = (\hat\beta_1 - \beta_1)/\bigg(\frac{\hat\sigma^2}{\sum_i(X_i-\bar X)^2}\bigg)^{1/2}\sim t_{n-2}
+$$
+
+Note that the ratio $\beta_1/SE(\beta_1)$ is named the “t value” in the
+R output.
+
+**Exercise 0.4**. Comment on the practical interpretation of the “t
+value.”
+
+The “t value” reported in software for the slope (and intercept) is: $$
+t = \frac{\hat\beta_j - \beta_j^{(0)}}{\text{SE}(\hat\beta_j)}
+$$ For the default test $H_0: \beta_j = 0$, this simplifies to
+$t = \hat\beta_j / \text{SE}(\hat\beta_j)$.
+
+Practical interpretation:
+
+1.  Standardized distance: It tells you how many estimated standard
+    errors the estimate $\hat\beta_j$ lies from the hypothesized value
+    (often 0). For example, $t = 11$ means the estimate is 11 SEs away
+    from 0—far in the tail of the $t_{n-2}$ distribution, giving an
+    extremely small p-value.
+
+2.  Signal-to-noise ratio: Numerator is the “signal” (estimated effect
+    size); denominator is the “noise” (its estimated variability).
+    Larger absolute $t$ means stronger evidence against the null,
+    holding sample size and variability structure fixed.
+
+3.  Connection to F-test (simple regression): In a model with a single
+    predictor, $t^2$ equals the F-statistic for testing the overall
+    regression (i.e., testing that the model with the predictor does
+    better than an intercept-only model). Thus the $t$ value also
+    measures the incremental explanatory contribution of that predictor.
+
+4.  Not effect size alone: A large $t$ can arise from a modest effect
+    with extremely precise estimation (large $n$, small residual
+    variance). Hence a “statistically significant” $t$ (large magnitude)
+    does not guarantee practical importance—the estimated coefficient
+    might still be too small to matter substantively. Always pair the
+    $t$ value with the raw estimate and its confidence interval when
+    interpreting practical relevance.
+
+5.  Scale invariance (conditional on recoding): If you rescale $X$
+    (e.g., change units), $\hat\beta_1$ and its SE both scale, often
+    leaving the $t$ ratio (and thus inference) unchanged, even though
+    the numeric value of the coefficient changes. This underscores that
+    $t$ is about evidence, not raw magnitude.
+
+Summary: The $t$ value is a standardized evidential measure: large $|t|$
+implies the data are unlikely under the null hypothesis, but practical
+interpretation still requires examining the coefficient size and
+confidence interval.
+
+When the degrees of freedom is small, the t distribution has heavier
+tails than a standard Normal. Meanwhile, as the degrees of freedom
+becomes large, the t distribution looks more and more like a standard
+Normal.
+
+In what follows, we’ll consider confidence intervals based on
+t-distribution quantiles. These will be very similar to Normal quantiles
+for large samples.
+
+**Exercise 0.5**. Use the above "key result" to show that $$
+\beta_1 \pm t_{1-\alpha/2,n-2}\hat{\text{SE}}(\hat\beta_1)
+$$
+
+is a $100(1-\alpha)\%$ confidence interval for $\beta_1$.
+
+(Here $t_{1-\alpha/2,n-2}$) refers to other $1-\alpha$ quantile of the
+$t_{n-2}$ distribution. It can be calculated in R with
+`qt(1 - alpha/2, df = n - 2)`).
+
+We are given the key result (under the normal simple linear regression
+model): $$
+T = \frac{\hat\beta_1 - \beta_1}{\hat{\text{SE}}(\hat\beta_1)} \sim t_{n-2}.
+$$
+
+Let $t_{1-\alpha/2,n-2}$ be the $(1-\alpha/2)$-quantile of the $t_{n-2}$
+distribution. Then $$
+\Pr\!\left(-t_{1-\alpha/2,n-2} \le T \le t_{1-\alpha/2,n-2}\right) = 1-\alpha.
+$$
+
+Substitute $T$: $$
+\Pr\!\left(-t_{1-\alpha/2,n-2} \le \frac{\hat\beta_1 - \beta_1}{\hat{\text{SE}}(\hat\beta_1)} \le t_{1-\alpha/2,n-2}\right) = 1-\alpha.
+$$
+
+Multiply through by $\hat{\text{SE}}(\hat\beta_1)$: $$
+\Pr\!\left(-t_{1-\alpha/2,n-2}\hat{\text{SE}}(\hat\beta_1) \le \hat\beta_1 - \beta_1 \le t_{1-\alpha/2,n-2}\hat{\text{SE}}(\hat\beta_1)\right)=1-\alpha.
+$$
+
+Rearrange to isolate $\beta_1$: $$
+\Pr\!\left(\hat\beta_1 - t_{1-\alpha/2,n-2}\hat{\text{SE}}(\hat\beta_1) \le \beta_1 \le \hat\beta_1 + t_{1-\alpha/2,n-2}\hat{\text{SE}}(\hat\beta_1)\right)=1-\alpha.
+$$
+
+Thus the random interval $$
+\hat\beta_1 \pm t_{1-\alpha/2,n-2}\hat{\text{SE}}(\hat\beta_1)
+$$ has (conditional) coverage probability $1-\alpha$; it is a
+$100(1-\alpha)\%$ confidence interval for $\beta_1$.
+
+**Example 0.1**. Here we construct 95% confidence intervals for the
+linear regression used in the BEA example.
+
+First, we can look up the appropriate $t$ quantile for $\alpha=0.05$,
+and find $\hat\beta_1$ and $\hat{\text{SE}(\beta_1)}$:
+
+```{r}
+#compute t quantile
+t_quant <- qt(1 - 0.05/2, df = nrow(bea) - 2)
+#obtain beta-hat
+betaHat = coef(bea_fit)["log(pop)"]
+#obtain estimated SE
+betaHat.se = coef(summary(bea_fit))["log(pop)", "Std. Error"]
+#manual calculation of CI:
+c(betaHat - betaHat.se*t_quant, betaHat + betaHat.se*t_quant)
+
+#using confint() for CI:
+confint(bea_fit)
+```
+
+------------------------------------------------------------------------
+
+## Reporting and Interpreting Estimates
+
+With confidence intervals, we now have what we need to report our re-
+gression estimates with uncertainty. We must communicate the uncertainty
+clearly to readers so they can understand our results.
+
+### Interpreting $\hat\beta_0$ and $\hat\beta_1$
+
+To report estimates, we must first be able to interpret what they mean.
+Consider simple linear regression with the model $$
+Y_i = \beta_0 + \beta_1X_i+\epsilon_i
+$$ We use least squares to obtain $\hat\beta_0$ and $\hat\beta_1$ for a
+particular sample of data.
+
+**Exercise 0.6.** Interpret $\hat\beta_0$ and $\hat\beta_1$
+
+Model: $$
+Y_i = \beta_0 + \beta_1 X_i + \epsilon_i,\quad \mathbb{E}(\epsilon_i \mid X_i)=0.
+$$
+
+Interpretations (population / theoretical):
+
+1.  Slope $\beta_1$:\
+    $$
+    \beta_1 = \frac{\text{Cov}(X,Y)}{\text{Var}(X)} = \text{the expected change in } \mathbb{E}(Y \mid X) \text{ per one-unit increase in } X.
+    $$\
+    More plainly: Holding all else implicit in this simple model,
+    increasing $X$ by 1 unit is associated with an average (expected)
+    change of $\beta_1$ units in $Y$.\
+    Units: (units of $Y$) per (unit of $X$).\
+    If you rescale $X$ (e.g., measure kilometers instead of meters),
+    $\beta_1$ rescales accordingly; interpretations must always mention
+    units.\
+    If $X$ is transformed (e.g., $\log X$), then “a 1-unit increase”
+    refers to that transformed scale (e.g., multiplying the original $X$
+    by $e$ for a log).
+
+2.  Intercept $\beta_0$:\
+    $$
+    \beta_0 = \mathbb{E}(Y \mid X=0).
+    $$\
+    It is the mean response when $X=0$. This is meaningful only if $X=0$
+    is within (or close to) the range of observed $X$ values and is
+    substantively plausible. If $X=0$ lies far outside the data’s
+    support (e.g., population size, body weight, income when zero never
+    occurs or is rare), the intercept becomes an extrapolated baseline
+    with little practical interpretation. It still plays a necessary
+    algebraic role in positioning the fitted line.
+
+Sample (estimated) counterparts:
+
+-   $\hat\beta_1$ estimates the population slope: “In our sample, each
+    additional unit of $X$ is associated with an estimated average
+    change of $\hat\beta_1$ units in $Y$.” Always report with a
+    confidence interval or standard error to convey uncertainty.
+-   $\hat\beta_0$ estimates the mean $Y$ at $X=0$: “The fitted mean of
+    $Y$ at $X=0$ is $\hat\beta_0$.” Add a caveat if $X=0$ is outside the
+    observed range (e.g., “This is an extrapolation and should be
+    interpreted cautiously”).
+
+Template for reporting in context (fill with real variables): - “The
+estimated slope $\hat\beta_1$ indicates that a one-unit increase in [X
+units] is associated with an average change of $\hat\beta_1$ [Y units]
+in the outcome (95% CI: [lower, upper]).” - “The intercept $\hat\beta_0$
+represents the expected [Y] when [X] = 0; since 0 is [within / outside]
+the observed range, this estimate is [directly interpretable / mainly a
+mathematical anchor].”
+
+Key cautions: - Do not over-interpret the intercept when $X=0$ is
+implausible. - Clarify the scale (raw, logged, centered) of $X$; if $X$
+was centered (e.g., $X - \bar X$), then the intercept gives the expected
+$Y$ at average $X$, which is often more interpretable. - Practical
+importance requires looking at effect sizes over meaningful changes in
+$X$ (e.g., per 10 units, per doubling, per standard deviation), not just
+per single unit if that unit is tiny.
+
+------------------------------------------------------------------------
+
+### Reporting Estimates with Uncertainty
+
+Uncertainty is important, because simply reporting “$\beta_1 = 0.42$”
+may conceal a great deal. Results should always be reported with
+confidence intervals, or at least SEs, so readers can see the scale of
+uncertainty.
+
+**Example 0.2**. Suppose we surveyed CMU students to ask (a) how many
+hours they sleep per night and (b) their GPA. We fit a regression using
+hours of sleep as the covariate and GPA as the outcome, hoping to under-
+stand how sleep habits relate to grades.
+
+**Exercise 0.7.** Suppose we obtain $\hat\beta_1 = 0.4$. Interpret this
+result in context, and show why the size of the confidence interval
+matters a lot.
+
+Suppose we obtain $\hat\beta_1 = 0.4$ in the regression of GPA (outcome)
+on hours of sleep per night (predictor).
+
+Interpretation (point estimate): - For each additional hour of average
+nightly sleep, the model estimates an average increase of about 0.40 GPA
+points. - On a 0–4 GPA scale, 0.40 is 10% of the full
+scale—substantively large. Over a 2‑hour difference (e.g., 6 vs. 8
+hours), the predicted GPA difference would be $2 \times 0.40 = 0.80$,
+which is very large (e.g., moving from 3.0 to 3.8).
+
+Why the confidence interval matters: - If the 95% CI were, say,
+$0.30, 0.50$, we would conclude a clearly positive, large, and precisely
+estimated association. Practical message: sleep appears strongly related
+to GPA in a meaningful way. - If instead the 95% CI were $-0.05, 0.85$,
+the point estimate is still 0.40, but the data are too imprecise to rule
+out anything from essentially no effect (slightly negative even) to a
+very large effect. The “headline” $\hat\beta_1 = 0.4$ would be
+misleading if quoted without its uncertainty. - If the CI were
+$0.01, 0.79$, statistical significance (it excludes 0) does not settle
+practical size: the true effect could be tiny (0.01 per hour) or huge
+(0.79 per hour). Policy or behavioral recommendations would differ
+drastically across that range.
+
+Key takeaway: A single point estimate (0.4) cannot convey whether we
+have: 1. Strong evidence for a *large* effect (narrow CI away from 0),
+or 2. Weak evidence (wide CI), or 3. A result that is statistically
+significant but practically ambiguous (CI excludes 0 yet spans small to
+large effects).
+
+Always report (and interpret) the interval, not just the coefficient.
+
+**Exercise 0.8.** Suppose instead that we obtained size of the
+confidence interval matters a lot. $\hat\beta_1 = 0.002$. Show why the
+size of the confidence interval matters a lot.
+
+Now suppose $\hat\beta_1 = 0.002$.
+
+Interpretation (point estimate): - Each additional hour of sleep is
+associated with an average increase of 0.002 GPA points. - Over a 3‑hour
+difference (e.g., 5 vs. 8 hours), the predicted change would be
+$3 \times 0.002 = 0.006$, which is negligible relative to typical GPA
+variation.
+
+Why the confidence interval matters: - If the 95% CI is very narrow and
+near zero, e.g. $-0.004, 0.008$, then we have *precise evidence of no
+practically meaningful effect*. Even if statistically one might not
+reject 0, the practical conclusion is: additional sleep (within the
+observed range) does not materially shift GPA. - If the 95% CI is
+$-0.10, 0.10$, the *point* estimate is tiny, but the data are too
+imprecise to rule out a potentially meaningful effect (e.g., 0.10 per
+hour: a 2‑hour increase → 0.20 GPA gain, which could matter). We cannot
+confidently say “sleep doesn’t matter”; we just lack precision. - If the
+95% CI is $-0.002, 0.006$ and you standardize the predictor (hours) so
+that 1 SD in sleep corresponds to, say, 1.2 hours, then the effect per
+standard deviation is still trivial (≈ 0.0024–0.0072). This reinforces
+the negligible practical impact when the interval is tight.
+
+Contrast with Exercise 0.7: - Large estimate + wide CI ⇒ uncertainty
+about true magnitude. - Tiny estimate + narrow CI ⇒ confident evidence
+of *no* meaningful effect. - Tiny estimate + wide CI ⇒ we learned
+little; cannot distinguish “no effect” from “moderate effect.”
+
+Practical message: The *size and tightness* of the interval dictate
+whether we can (a) rule out meaningful effects or (b) merely note that
+current data are uninformative. A small point estimate alone does not
+prove the effect is negligible unless the confidence interval is also
+narrow around small values.
+
+------------------------------------------------------------------------
+
+## Hypothesis Testing for $\beta_1$
+
+Review: There are five key components to a statistical hypothesis
+test: 1. Null hypothesis $H_0$: Tentative assumption that an effect or
+parameter is “null” (or equal to zero). We’ll assess to what extent the
+data are consistent with $H_0$. For example: $H_0:\beta_1 = 0$. 2.
+Alternative hypothesis HA: Characteristic about an effect or parameter
+we assume if we reject the null hypothesis. For example: HA :
+$\beta_1\ne 0$. 3. Test statistic: Measures how consistent the data are
+with $H_0$. Ideally, (1) the more “false” $H_0$ becomes, the more the
+test statistic changes; and (2) we know its distribution when H0 is
+true. 4. Rejection region: Range of test statistic values for which we
+reject $H_0$. 5. Significance level α: Determines size of rejection
+region and frequency we’re willing to falsely reject when $H_0$ is true.
+
+**Exercise 0.9.** To test H0 : $\beta_1 = 0$, a natural test statistic
+is $T = \hat\beta_1 / \hat{\text{SE}(\hat\beta_1)}$. Why? Furthermore,
+what's the practical value of testing $H_0:\beta_0 = 0$?
+
+Recall that we need to consider separately the one-sided and two-sided
+hypothesis tests. In this case,
+
+| If testing... | reject $H_0$ if ... |
+|----|----|
+| $H0 : \beta_1 = 0$ versus $H_A : \beta_1 > 0$ | $T > t_{1−α,n−2}$ |
+| $H0 : \beta_1 = 0$ versus $H_A : \beta_1 < 0$ | $T < −t_{1−α,n−2}$ |
+| $H0 : \beta_1 = 0$ versus $H_A : \beta_1\ne0$ | $T > t_{1−α/2,n−2}$ or $T <−t_{1−α/2,n−2}$ |
+
+Importantly, the p-value can be calculated using the appropriate tail
+probability. We reject $H_0$ if $p < α$.
+
+Why is $T = \hat\beta_1 / \hat{\text{SE}}(\hat\beta_1)$ (for testing
+$H_0:\beta_1=0$) a natural test statistic?
+
+1.  Centering under the null: If $H_0:\beta_1=0$ is true, then
+    $\mathbb{E}(\hat\beta_1 \mid X)=0$.\
+2.  Standardization: Dividing by its estimated standard error produces a
+    dimensionless quantity measuring how many (estimated) standard
+    deviations the estimate lies from the null value.\
+3.  Known reference distribution: Under the normal simple linear
+    regression model (and using $\hat\sigma^2$ with $n-2$ degrees of
+    freedom),\
+    $$
+    T = \frac{\hat\beta_1 - 0}{\hat{\text{SE}}(\hat\beta_1)} \sim t_{n-2}.
+    $$ This gives exact finite-sample critical values and p-values.\
+4.  Optimality (in this setting): For normal errors, the t-test is
+    uniformly most powerful unbiased among a broad class for testing a
+    single linear parameter.\
+5.  Invariance to rescaling of $Y$ and $X$: Rescaling $X$ or $Y$
+    rescales both numerator and denominator, often leaving $T$ unchanged
+    (aside from trivial sign if direction reverses), so inference is
+    stable to unit changes.
+
+Practical value of testing $H_0:\beta_0 = 0$:
+
+Usually limited, because $\beta_0 = \mathbb{E}(Y \mid X=0)$. If $X=0$
+is: - Outside or far from the observed range: the test addresses an
+extrapolated mean, rarely of substantive interest. - Arbitrary because
+$X$ has been centered or scaled: then $\beta_0$ just represents the mean
+at the chosen reference point; testing whether that mean equals 0 is
+rarely meaningful (and a one-sample test of a mean is trivial if we
+already know the scale of $Y$).
+
+Testing $\beta_0=0$ is only practically useful when $X=0$ is a natural,
+policy-relevant, or scientifically meaningful state (e.g., zero dosage,
+pre-treatment baseline), and when $Y=0$ has an interpretable benchmark
+(e.g., zero concentration detectable). Otherwise, it is mostly a
+formality in software output.
+
+**Exercise 0.10**. Depict the appropriate tail probability to be
+calculated in each of the three possibilities given above. Furthermore,
+clarify what distribution you use to compute the tail probability.
+
+Tail probabilities (all with a $t_{n-2}$ reference distribution under
+$H_0$):
+
+1.  One-sided, positive alternative\
+    Test: $H_0:\beta_1=0$ vs. $H_A:\beta_1>0$\
+    Reject if $T > t_{1-\alpha, n-2}$.\
+    p-value: $$
+    p = P_{H_0}(T_{n-2} \ge T_{\text{obs}}) = 1 - F_{t_{n-2}}(T_{\text{obs}})
+    $$
+
+2.  One-sided, negative alternative\
+    Test: $H_0:\beta_1=0$ vs. $H_A:\beta_1<0$\
+    Reject if $T < -t_{1-\alpha, n-2}$.\
+    p-value: $$
+    p = P_{H_0}(T_{n-2} \le T_{\text{obs}}) = F_{t_{n-2}}(T_{\text{obs}})
+    $$
+
+3.  Two-sided alternative\
+    Test: $H_0:\beta_1=0$ vs. $H_A:\beta_1 \ne 0$\
+    Reject if $|T| > t_{1-\alpha/2, n-2}$.\
+    p-value: $$
+    p = 2 \min\{ F_{t_{n-2}}(T_{\text{obs}}),\ 1 - F_{t_{n-2}}(T_{\text{obs}})\}
+    $$
+
+ASCII sketches (centered at 0):
+
+A. Right tail (\>$t_{1-\alpha}$):\
+\|----\|----\|----\|====\>\
+\^ rejection region
+
+B. Left tail (\<$-t_{1-\alpha}$):\
+\<====\|----\|----\|----\|\
+\^ rejection region
+
+C. Two tails (\|T\| large):\
+\<==\|--\|--------\|--\|==\>\
+\^ \^ both rejection regions
+
+Distribution used: the Student t distribution with $n-2$ degrees of
+freedom (because two parameters $\beta_0,\beta_1$ are estimated to form
+$\hat\sigma$).
+
+R provides p-values for two-sided alternatives in its Coefficients
+table.
+
+**Exercise 0.11**. Below is the BEA example again. Make a statistical
+and practical interpretation of hypothesis testing regarding $\beta_1$.
+
+```{r}
+summary(bea_fit)
+```
+
+BEA regression: $$
+\text{pcgmp}_i = \beta_0 + \beta_1 \log(\text{pop}_i) + \epsilon_i
+$$
+
+Reported slope statistics: - $\hat\beta_1 = 4449.8$ -
+$\text{SE}(\hat\beta_1) = 390.9$ - $t = 11.383$ - Two-sided p-value: \<
+$2\times 10^{-16}$ - Degrees of freedom: 364
+
+Statistical interpretation: - The test $H_0:\beta_1=0$ vs.
+$H_A:\beta_1\ne 0$ yields an extremely large $t$ in magnitude (11.383);
+under $t_{364}$, such a value is astronomically unlikely if $H_0$ were
+true. We decisively reject $H_0$.\
+- The 95% confidence interval (using earlier approximation) is roughly
+$[3680, 5220]$, excluding zero by a wide margin, reinforcing strong
+statistical evidence of a positive association.
+
+Practical (substantive) interpretation: - $\log(\text{pop})$
+coefficient: A one-unit increase in $\log(\text{pop})$ corresponds to
+multiplying population by $e\approx 2.718$, and is associated with an
+estimated increase of about 4450 currency units in per-capita GMP.\
+- More interpretable scaling: Doubling population
+($\log 2 \approx 0.693$) is associated with an increase of
+$\approx 4449.8\times 0.693 \approx 3080$ per-capita GMP units (a
+sizable economic difference).\
+- Precision: The relatively small standard error compared to the
+estimate indicates high precision; even modest mis-specification would
+be unlikely to overturn the conclusion of a positive, economically
+meaningful relationship.\
+- Context of fit: The R-squared (≈ 0.26) shows population explains about
+26% of cross-sectional variation in per-capita GMP—moderate explanatory
+power. So while population size (on a log scale) is important,
+substantial variability remains unexplained, inviting additional
+covariates for fuller modeling.
+
+Caution: - Association, not necessarily causation: Larger population may
+correlate with other structural factors (industrial mix, infrastructure)
+that also affect per-capita GMP; omitted variable bias is a potential
+concern.\
+- Functional form: The log specification implies diminishing marginal
+increases in per-capita GMP with proportional increases in population;
+checking residual diagnostics would verify adequacy.
+
+Intercept test: - The significant intercept ($t=-4.702$) is not
+substantively illuminating, since $\log(\text{pop})=0$ (population = 1)
+is outside realistic scope; its statistical significance has little
+policy meaning.
+
+Summary statement: - There is extremely strong statistical evidence that
+larger population (in multiplicative terms) is associated with higher
+per-capita GMP, and the estimated magnitude (≈ 3000 per-capita increase
+per population doubling) is practically substantial in this dataset.
+
+------------------------------------------------------------------------
+
+## Testing & p-values: Uses & Abuses
+
+Statistical vs. practical significance If we test $H_0 : \beta_1 = b$
+and reject it, it is common to say that the difference between $\beta_1$
+and $b$ is statistically significant. Because many professions have an
+overwhelming urge to test $H_0 : \beta_1 = 0$, it’s common for people to
+say “$\beta_1$ is statistically significant” when they really mean
+“$\beta_1$ is statistically significantly different from zero.”
+
+However, despite the word “significance,” within a given application,
+rejecting a null hypothesis may not be practically meaningful in and of
+itself.
+
+For example, we may reject the null hypothesis that $H_0 : \beta_1 = 0$,
+thereby thinking that there is a “significant association.” However,
+after looking at our confidence interval, we may be confident that the
+association, while non-zero, is very small and “practically
+insignificant.” For example, perhaps we were 95% confident that the true
+β1 for a linear regression that uses GPA as the outcome and hours of
+sleep as the covariate is $[-0.0002, -0.0001]$. Would this motivate you
+to sleep less in order to increase your GPA, because there is a
+statistically significant effect?
+
+Relatedly, there is a notable difference between being quite confident
+in a very small but non-zero effect, and having no certainty about the
+effect (whether it’s zero, very negative, or very positive). In the
+former situation, we are confident that a large effect does not exist
+(at least given the data at hand, and assuming our modeling assumptions
+are correct); but in the second situation, we cannot declare any
+magnitude about the effect. This is why we stated earlier that it is
+good practice to report confidence intervals.
+
+It is also always tempting to “accept” the null when we fail to reject
+it, but failing to reject is not synonymous with accepting. There are at
+least two reasons why we might fail to reject the null $\beta_1 = 0$:
+
+1.  $\beta_1$ is, in fact, zero,
+2.  $\beta_1\ne 0$, but $\text{SE}(\hat\beta_1)$ is so large that we
+    can’t tell anything about $β_1$ with any confidence.
+
+Even a huge $\beta_1$ can be statistically insignificant if the standard
+error is large enough. Conversely, a very small β1 will become
+statistically significant once its standard error is small enough. Since
+the standard error goes to zero as $n \rightarrow \inf$, the $t$ value
+$\frac{\beta_1}{\text{SE}(\beta_1)} \rightarrow \pm \inf$, unless
+$\beta_1$ is exactly 0.
+
+Statistical significance involves a mixture of effect size, sample size,
+and variation. Unfortunately, this has little to do with “significance”
+in the typical, ordinary language sense. Perhaps a better phrase is
+“statistically detectable” or “statistically distinguishable from 0”.
+However, for the time being, “statistical significance” is a commonly
+used phrase, and thus we should be aware of its implicit nuances.
+
+### Misinterpretations of the p-value
+
+The p-value has become somewhat controversial due to its widespread
+misuse. Here we try to clarify some common misconceptions: - a large
+p-value is NOT strong evidence in favor of $H_0$ - the p-value is NOT
+equal to P(H0 true given the data) - $p= 0.048$ is not very different
+from $p= 0.053$, even though only the former leads to rejecting $H_0$ at
+level $\alpha = 0.05$.
+
+However, we should not abandon the p-value simply because people mis-
+use it. We should improve statistical literacy, and be honest about the
+limitations/meanings of p-values. It’s also important to keep in mind
+that confidence intervals have similar limitations, in the sense that we
+can use them to make fail-to-reject and reject hypothesis testing
+conclusions by checking if zero is contained in the confidence interval.
+But, confidence intervals at least give some quantification of
+uncertainty, which p-values do not.
