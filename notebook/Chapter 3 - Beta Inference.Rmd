@@ -600,7 +600,7 @@ Recall that we need to consider separately the one-sided and two-sided
 hypothesis tests. In this case,
 
 | If testing... | reject $H_0$ if ... |
-|----|----|
+|-------------------------------------|-------------------------------------------------------|
 | $H0 : \beta_1 = 0$ versus $H_A : \beta_1 > 0$ | $T > t_{1−α,n−2}$ |
 | $H0 : \beta_1 = 0$ versus $H_A : \beta_1 < 0$ | $T < −t_{1−α,n−2}$ |
 | $H0 : \beta_1 = 0$ versus $H_A : \beta_1\ne0$ | $T > t_{1−α/2,n−2}$ or $T <−t_{1−α/2,n−2}$ |
@@ -673,8 +673,6 @@ $H_0$):
     p-value: $$
     p = 2 \min\{ F_{t_{n-2}}(T_{\text{obs}}),\ 1 - F_{t_{n-2}}(T_{\text{obs}})\}
     $$
-
-ASCII sketches (centered at 0):
 
 A. Right tail (\>$t_{1-\alpha}$):\
 \|----\|----\|----\|====\>\
