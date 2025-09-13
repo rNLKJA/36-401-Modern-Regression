@@ -1,5 +1,5 @@
 ---
-title: "36-401, Chapter 2: Simple Linear Regression"
+title: "36-401, Chapter 3: Beta Inference"
 output: rmarkdown::github_document
 editor_options: 
   markdown: 
@@ -600,7 +600,7 @@ Recall that we need to consider separately the one-sided and two-sided
 hypothesis tests. In this case,
 
 | If testing... | reject $H_0$ if ... |
-|-------------------------------------|-------------------------------------------------------|
+|-----------------------------|-------------------------------------------|
 | $H0 : \beta_1 = 0$ versus $H_A : \beta_1 > 0$ | $T > t_{1−α,n−2}$ |
 | $H0 : \beta_1 = 0$ versus $H_A : \beta_1 < 0$ | $T < −t_{1−α,n−2}$ |
 | $H0 : \beta_1 = 0$ versus $H_A : \beta_1\ne0$ | $T > t_{1−α/2,n−2}$ or $T <−t_{1−α/2,n−2}$ |
@@ -812,10 +812,12 @@ used phrase, and thus we should be aware of its implicit nuances.
 
 The p-value has become somewhat controversial due to its widespread
 misuse. Here we try to clarify some common misconceptions: - a large
-p-value is NOT strong evidence in favor of $H_0$ - the p-value is NOT
-equal to P(H0 true given the data) - $p= 0.048$ is not very different
-from $p= 0.053$, even though only the former leads to rejecting $H_0$ at
-level $\alpha = 0.05$.
+p-value is NOT strong evidence in favor of $H_0$
+
+\- the p-value is NOT equal to P(H0 true given the data)
+
+\- $p= 0.048$ is not very different from $p= 0.053$, even though only
+the former leads to rejecting $H_0$ at level $\alpha = 0.05$.
 
 However, we should not abandon the p-value simply because people mis-
 use it. We should improve statistical literacy, and be honest about the
