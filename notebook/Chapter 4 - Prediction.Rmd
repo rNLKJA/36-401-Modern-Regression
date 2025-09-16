@@ -1,14 +1,12 @@
 ---
 title: "36-401, Chapter 4: Prediction in Simple Linear Regression"
-output: rmarkdown::github_document
+output: rmarkdown::github_document; output: html_notebook
 editor_options: 
   markdown: 
     wrap: 72
 ---
 
-**Example 0.1**. Data were gathered from 97 men with advanced prostate cancer, including two variables of interest:
-- PSA Level (psa): Serum prostate-specific antigen level (ng/mL)
-- Cancer volume (cavol): Estimate of prostate cancer volume (cc)
+**Example 0.1**. Data were gathered from 97 men with advanced prostate cancer, including two variables of interest: - PSA Level (psa): Serum prostate-specific antigen level (ng/mL) - Cancer volume (cavol): Estimate of prostate cancer volume (cc)
 
 It would be useful to predict cancer volume (Y) from PSA levels (X), because PSA level can be measured with a simple blood test, but cancer volume is harder to measure. Knowing (or estimating) cancer volume can help determine the appropriate treatment.
 
@@ -58,49 +56,35 @@ par(op)
 
 Yes — in this prostate dataset context, the log transforms of PSA (X) and cancer volume (Y) are typically helpful for several reasons:
 
-1. Skewness reduction: Both PSA and cancer volume on the raw scale are right‑skewed. Taking logs makes their distributions more symmetric, which better matches the normal error assumption for linear regression residuals.
-2. Variance stabilization: On the original scale, variability in Y tends to increase with X (heteroskedasticity). After logging, the spread of $\log(Y)$ is more uniform across $\log(X)$, improving the plausibility of constant error variance.
-3. Linearization: Biological size/biomarker relationships are often multiplicative or follow a power law: $Y \approx \alpha X^{\beta} e^{\varepsilon}$. Taking logs yields $\log Y = \log \alpha + \beta \log X + \varepsilon$, which is linear in $\log X$.
-4. Influence control: Extreme large PSA or volume values exert less leverage after log transformation (compression of the scale).
-5. Interpretability: The slope in the log–log model has an elasticity interpretation: $\beta_1$ is the approximate percent change in cancer volume for a 1% change in PSA (formally, a 1% increase in PSA corresponds to an expected $\beta_1$% increase in cancer volume, for small changes).
+1.  Skewness reduction: Both PSA and cancer volume on the raw scale are right‑skewed. Taking logs makes their distributions more symmetric, which better matches the normal error assumption for linear regression residuals.
+2.  Variance stabilization: On the original scale, variability in Y tends to increase with X (heteroskedasticity). After logging, the spread of $\log(Y)$ is more uniform across $\log(X)$, improving the plausibility of constant error variance.
+3.  Linearization: Biological size/biomarker relationships are often multiplicative or follow a power law: $Y \approx \alpha X^{\beta} e^{\varepsilon}$. Taking logs yields $\log Y = \log \alpha + \beta \log X + \varepsilon$, which is linear in $\log X$.
+4.  Influence control: Extreme large PSA or volume values exert less leverage after log transformation (compression of the scale).
+5.  Interpretability: The slope in the log–log model has an elasticity interpretation: $\beta_1$ is the approximate percent change in cancer volume for a 1% change in PSA (formally, a 1% increase in PSA corresponds to an expected $\beta_1$% increase in cancer volume, for small changes).
 
-If the fitted log–log model is
-$$
+If the fitted log–log model is $$
 \log Y = \beta_0 + \beta_1 \log X + \varepsilon,\quad \varepsilon \sim N(0,\sigma^2),
-$$
-then:
-- Equivalent multiplicative form on the original scale:
-$$
+$$ then: - Equivalent multiplicative form on the original scale: $$
 Y = e^{\beta_0} X^{\beta_1} e^{\varepsilon}.
-$$
-- Conditional median (given X) is:
-$$
+$$ - Conditional median (given X) is: $$
 \text{Med}(Y \mid X) = e^{\beta_0} X^{\beta_1},
-$$
-because $\text{Med}(e^{\varepsilon}) = e^{0} = 1$.
-- Conditional mean (given X) is:
-$$
+$$ because $\text{Med}(e^{\varepsilon}) = e^{0} = 1$. - Conditional mean (given X) is: $$
 \mathbb{E}[Y \mid X] = e^{\beta_0 + \beta_1 \log X + \tfrac{1}{2}\sigma^{2}} = e^{\beta_0} X^{\beta_1} e^{\sigma^{2}/2}.
-$$
-So simply exponentiating the fitted linear predictor $\widehat{\log Y}$ gives you an estimate of the conditional median, not the mean; a bias correction factor $e^{\hat\sigma^{2}/2}$ is needed if you want $\widehat{\mathbb{E}}(Y \mid X)$.
-
+$$ So simply exponentiating the fitted linear predictor $\widehat{\log Y}$ gives you an estimate of the conditional median, not the mean; a bias correction factor $e^{\hat\sigma^{2}/2}$ is needed if you want $\widehat{\mathbb{E}}(Y \mid X)$.
 
 ## Prediction
 
-Under the normal simple linear regression model, we assume
-$Y = \beta_0 + \beta_1 X+\epsilon_i$, where $\epsilon | X\sim N(0,\sigma^2)$. Thus:
+Under the normal simple linear regression model, we assume $Y = \beta_0 + \beta_1 X+\epsilon_i$, where $\epsilon | X\sim N(0,\sigma^2)$. Thus:
 
 $$
 Y|X \sim N(\mu(X), \sigma^2),\quad \text{where } \mu(X) = \mathbb{E}[Y|X] = \beta_0 + \beta_1X
 $$
 
-Now we want to use this model to predict $Y$ based on $X$. How do we make those predictions, how good are they, and how certain are we about them? Say $X= x$ and we want to predict $Y$. In Chapter 2, we showed that the MSE-optimal prediction is
-$$
+Now we want to use this model to predict $Y$ based on $X$. How do we make those predictions, how good are they, and how certain are we about them? Say $X= x$ and we want to predict $Y$. In Chapter 2, we showed that the MSE-optimal prediction is $$
 \mu(x) = \mathbb{E}[Y|X= x] = \beta_0 + \beta_1x
 $$
 
-However, we do not know β0 and β1. Thus, in practice, we can consider the following prediction at $X= x$:
-$$
+However, we do not know β0 and β1. Thus, in practice, we can consider the following prediction at $X= x$: $$
 \hat \mu(x) = \mathbb{E}[Y|X= x] = \beta_0 + \beta_1x
 $$
 
@@ -109,92 +93,87 @@ Here, $\hat\mu(x)$ is called the fitted value at $x$.
 Notice that $\hat\mu(x)$ is a random variable, because $\hat\beta_0$ and $\hat\beta_1$ are random variables. We’ve considered the bias and variance of $\hat\beta_0$ and $\hat\beta_1$. Thus, we can also consider the bias and variance of $\hat\mu(x)$.
 
 We’ll again focus on least-squares estimators, which are:
+
 $$
 \hat\beta_0 = Y− \hat\beta_1X \\
 \hat\beta_1 = \frac{\sum^n_{i=1}(Y_i - \bar Y) (X_i - \bar X)}{\sum^n_{i=1}(X_i - \bar X)^2}
 $$
-They are unbiased. Their conditional variances are:
-$$
+
+They are unbiased. Their conditional variances are: $$
 \text{Var}(\hat\beta_0|X) = \sigma^2\bigg[\frac{1}{n} + \frac{\bar X^2}{\sum^n_{i=1}(X_j -\bar X)^2}\bigg] \\
 \text{Var}(\hat\beta_1|X) = \frac{\sigma^2}{\sum^n_{i=1}(X_j - \bar X)^2}
 $$
 
 ## Bias and Variance
 
-**Userful Fact**: $\hat\beta_0$ and $\hat\beta_1$ can be written in a "signal+noise" form:
-$$
-\hat\beta_1 = \beta_1 +\frac{\frac{1}{n}\sum^n_{i=1}\epsilon(X_i - \bar X)}{\widehat{\text{Var}}_n(X)} \\
+**Userful Fact**: $\hat\beta_0$ and $\hat\beta_1$ can be written in a "signal+noise" form: \$\$ \hat\beta\_1 = \beta\_1 +\frac{\frac{1}{n}\sum^n_{i=1}\epsilon(X_i - \bar X)}{\widehat{\text{Var}}_n(X)}
 
-\hat\beta_0 = \beta_0 + \frac{1}{n}\sum^n_{i=1}\epsilon_i \bigg\{1 \frac{\bar X (X_i - \bar X)}{\widehat{\text{Var}}_n(X)}\bigg\}
-$$
+\\
+
+\hat\beta\_0 = \beta\^\**0 +*\frac{1}{n}\sum\^n{i=1}\epsilon\_i \bigg{1
+\frac{\bar X (X_i - \bar X)}{\widehat{\text{Var}}_n(X)}\bigg} \$\$
 
 where $\widehat{\text{Var}}_n(X) = \frac{1}{n}\sum^n_{i=1}(X_i - \bar X)^2$.
 
-**Exercise 0.2**. Show $\mathbb{E}(\hat\beta_0 | X) = \beta_0 $ and $\mathbb{E}(\hat\beta_1|X) = \beta_1$ i.e., the estimators are conditionally unbiased.
+**Exercise 0.2**. Show \$\mathbb{E}(\hat\beta\_0 \| X) = \beta\_0 \$ and $\mathbb{E}(\hat\beta_1|X) = \beta_1$ i.e., the estimators are conditionally unbiased.
 
-Let:
-$$
+Let: $$
 Y_i = \beta_0 + \beta_1 X_i + \varepsilon_i,\quad \mathbb{E}[\varepsilon_i \mid X] = 0,\quad \text{Var}(\varepsilon_i \mid X)=\sigma^{2},\quad i=1,\dots,n,
 $$
+
 and define:
+
 $$
 \bar X = \frac{1}{n}\sum_{i=1}^n X_i,\quad \bar Y = \frac{1}{n}\sum_{i=1}^n Y_i,\quad S_{XX} = \sum_{i=1}^n (X_i - \bar X)^2.
 $$
 
-The OLS slope estimator:
-$$
+The OLS slope estimator: $$
 \hat{\beta}_1 = \frac{\sum_{i=1}^n (X_i - \bar X)(Y_i - \bar Y)}{S_{XX}}.
 $$
- 
-Substitute $Y_i$:
-$$
+
+Substitute $Y_i$: $$
 Y_i - \bar Y = (\beta_0 + \beta_1 X_i + \varepsilon_i) - (\beta_0 + \beta_1 \bar X + \bar\varepsilon) = \beta_1 (X_i - \bar X) + (\varepsilon_i - \bar\varepsilon).
-$$
-Then:
-$$
+$$ Then: $$
 \sum_{i=1}^n (X_i - \bar X)(Y_i - \bar Y) = \beta_1 \sum_{i=1}^n (X_i - \bar X)^2 + \sum_{i=1}^n (X_i - \bar X)(\varepsilon_i - \bar\varepsilon).
-$$
-But $\sum_{i=1}^n (X_i - \bar X) = 0$, so $\sum_{i=1}^n (X_i - \bar X)\bar\varepsilon = 0$, yielding:
-$$
+$$ But $\sum_{i=1}^n (X_i - \bar X) = 0$, so $\sum_{i=1}^n (X_i - \bar X)\bar\varepsilon = 0$, yielding: $$
 \sum_{i=1}^n (X_i - \bar X)(Y_i - \bar Y) = \beta_1 S_{XX} + \sum_{i=1}^n (X_i - \bar X)\varepsilon_i.
-$$
-Hence:
-$$
+$$ Hence: $$
 \hat{\beta}_1 = \beta_1 + \frac{\sum_{i=1}^n (X_i - \bar X)\varepsilon_i}{S_{XX}}.
 $$
-Take conditional expectation given all $X_i$:
-$$
+
+Take conditional expectation given all $X_i$: $$
 \mathbb{E}[\hat{\beta}_1 \mid X] = \beta_1 + \frac{\sum_{i=1}^n (X_i - \bar X)\mathbb{E}[\varepsilon_i \mid X]}{S_{XX}} = \beta_1.
 $$
 
-The intercept estimator:
-$$
+The intercept estimator: $$
 \hat{\beta}_0 = \bar Y - \hat{\beta}_1 \bar X.
 $$
-Write $\bar Y = \beta_0 + \beta_1 \bar X + \bar\varepsilon$, so:
-$$
+
+Write $\bar Y = \beta_0 + \beta_1 \bar X + \bar\varepsilon$, so: $$
 \hat{\beta}_0 = \beta_0 + \beta_1 \bar X + \bar\varepsilon - \hat{\beta}_1 \bar X
 = \beta_0 + \bar\varepsilon - (\hat{\beta}_1 - \beta_1)\bar X.
-$$
-From the earlier expression:
-$$
+$$ From the earlier expression: $$
 \hat{\beta}_1 - \beta_1 = \frac{\sum_{i=1}^n (X_i - \bar X)\varepsilon_i}{S_{XX}}.
 $$
+
 Thus:
+
 $$
 \hat{\beta}_0 = \beta_0 + \bar\varepsilon - \bar X \frac{\sum_{i=1}^n (X_i - \bar X)\varepsilon_i}{S_{XX}}.
 $$
-Take conditional expectation:
-$$
+
+Take conditional expectation: $$
 \mathbb{E}[\hat{\beta}_0 \mid X] = \beta_0 + \mathbb{E}[\bar\varepsilon \mid X] - \bar X \frac{\sum_{i=1}^n (X_i - \bar X)\mathbb{E}[\varepsilon_i \mid X]}{S_{XX}} = \beta_0.
 $$
 
 $$
 \hat{\beta}_1 = \beta_1 + \sum_{i=1}^n w_i \varepsilon_i,\quad w_i = \frac{X_i - \bar X}{S_{XX}},
 $$
+
 $$
 \hat{\beta}_0 = \beta_0 + \sum_{i=1}^n a_i \varepsilon_i,\quad a_i = \frac{1}{n} - \bar X \frac{X_i - \bar X}{S_{XX}}.
 $$
+
 Weights $\{w_i\}, \{a_i\}$ depend only on $X$, so zero-mean errors imply conditional unbiasedness.
 
 Similarly, $\hat\mu(x)$ can be written as "signal + noise".
@@ -211,6 +190,7 @@ Following the same process as the previous exercise, we can show $\mathbb{E}[\ha
 
 This decomposition also let us derive the conditional variance of $\hat\mu(x)$ (although it's algebraically more complicated).
 
+```{=latex}
 $$
 \begin{split}
 \text{Var}\{\hat\mu(x)|X\} &= \text{Var}\bigg[\frac{1}{n}\sum^n_{i=1}\epsilon_i\bigg\{1 + \frac{(x-\bar X)(X_i-\bar X)}{\widehat{\text{Var}}_n(X)}\bigg\} \bigg | X\bigg] \\
@@ -221,46 +201,37 @@ $$
 
 \end{split}
 $$
+```
 
 where the second equality follows by the iid assumption, the third by expanding the square, the fourth by constant variance, and the fifth by some simplification. (It is a useful exercise to understand why the fourth line is equal to the fifth line.)
 
-
 **Exercise 0.3**. What ca nwe conclude from the form of the conditional variance, $\widehat{\text{Var}}(\hat\mu(x)) = \frac{\sigma^2}{n}\bigg\{1 + \frac{(x-\bar X)^2}{\widehat{\text{Var}}_n(X)}\bigg\}$?
 
-The conditional variance $\mathrm{Var}(\hat\mu(x)\mid X)=\frac{\sigma^2}{n}\left(1+\frac{(x-\bar X)^2}{\widehat{\mathrm{Var}}_n(X)}\right)$ (note: your handwritten derivation dropped the square on $(x-\bar X)^2]; that square is essential) tells us:
-- It is smallest at $x=\bar X$; estimating the mean response is most precise at the center of the observed design points.
-- It grows quadratically as $x$ moves away from $\bar X$; uncertainty inflates the farther we predict from the data’s center (incipient extrapolation).
-- Greater spread of the predictor (larger $\widehat{\mathrm{Var}}_n(X)]$ reduces the second term, so a well‑spread design improves precision everywhere.
-- It shrinks at rate $1/n$; more data uniformly reduce variance (both terms scale by $1/n$).
-- Writing $\sum_{i=1}^n (X_i-\bar X)^2 = n\,\widehat{\mathrm{Var}}_n(X)$, the formula is $\sigma^2\left(\frac{1}{n}+\frac{(x-\bar X)^2}{\sum_{i}(X_i-\bar X)^2}\right)$, i.e. $\sigma^2 h(x)$ where $h(x)$ is the leverage for a (possibly new) point at $x$. Thus the variance inflation factor over the center point is exactly the leverage ratio; high‑leverage (far) points have larger estimator variance.
-- Practical takeaway: avoid relying on predictions far from the bulk of observed X; add data at extremes (rather than duplicates near $\bar X$) to reduce variance away from the center.
-
+The conditional variance $\mathrm{Var}(\hat\mu(x)\mid X)=\frac{\sigma^2}{n}\left(1+\frac{(x-\bar X)^2}{\widehat{\mathrm{Var}}_n(X)}\right)$ (note: your handwritten derivation dropped the square on $(x-\bar X)^2$; that square is essential) tells us: - It is smallest at $x=\bar X$; estimating the mean response is most precise at the center of the observed design points. - It grows quadratically as $x$ moves away from $\bar X$; uncertainty inflates the farther we predict from the data’s center (incipient extrapolation). - Greater spread of the predictor (larger $\widehat{\mathrm{Var}}_n(X)]$ reduces the second term, so a well‑spread design improves precision everywhere. - It shrinks at rate $1/n$; more data uniformly reduce variance (both terms scale by $1/n$). - Writing $\sum_{i=1}^n (X_i-\bar X)^2 = n\,\widehat{\mathrm{Var}}_n(X)$, the formula is $\sigma^2\left(\frac{1}{n}+\frac{(x-\bar X)^2}{\sum_{i}(X_i-\bar X)^2}\right)$, i.e. $\sigma^2 h(x)$ where $h(x)$ is the leverage for a (possibly new) point at $x$. Thus the variance inflation factor over the center point is exactly the leverage ratio; high‑leverage (far) points have larger estimator variance. - Practical takeaway: avoid relying on predictions far from the bulk of observed X; add data at extremes (rather than duplicates near $\bar X$) to reduce variance away from the center.
 
 **Exercise 0.4**. Sketch out how we can derive the variance of $\hat\mu(x)$ using the variances and covariance of $\hat\beta$s.
 
-Start with $\hat\mu(x)=\hat\beta_0 + \hat\beta_1 x.$ Conditional on $X$:
-$$
+Start with $\hat\mu(x)=\hat\beta_0 + \hat\beta_1 x.$ Conditional on $X$: $$
 \mathrm{Var}(\hat\mu(x)\mid X)=\mathrm{Var}(\hat\beta_0)+x^2\mathrm{Var}(\hat\beta_1)+2x\,\mathrm{Cov}(\hat\beta_0,\hat\beta_1).
 $$
-Known results for simple linear regression:
-$$
+
+Known results for simple linear regression: $$
 \mathrm{Var}(\hat\beta_0)=\sigma^2\left(\frac{1}{n}+\frac{\bar X^2}{\sum_{i}(X_i-\bar X)^2}\right),\quad
 \mathrm{Var}(\hat\beta_1)=\frac{\sigma^2}{\sum_{i}(X_i-\bar X)^2},\quad
 \mathrm{Cov}(\hat\beta_0,\hat\beta_1)= -\frac{\bar X\sigma^2}{\sum_{i}(X_i-\bar X)^2}.
-$$
-Plug in:
-$$
+$$ Plug in: $$
 \mathrm{Var}(\hat\mu(x)\mid X)=\sigma^2\left(\frac{1}{n}+\frac{\bar X^2}{S_{XX}}\right)+x^2\frac{\sigma^2}{S_{XX}}-2x\frac{\bar X\sigma^2}{S_{XX}}
 =\sigma^2\left(\frac{1}{n}+\frac{x^2-2x\bar X+\bar X^2}{S_{XX}}\right)
 =\sigma^2\left(\frac{1}{n}+\frac{(x-\bar X)^2}{S_{XX}}\right),
-$$
-where $S_{XX}=\sum_{i}(X_i-\bar X)^2 = n\widehat{\mathrm{Var}}_n(X).$ Rewriting with $\widehat{\mathrm{Var}}_n(X)$ gives
+$$ where $S_{XX}=\sum_{i}(X_i-\bar X)^2 = n\widehat{\mathrm{Var}}_n(X)$.
+
+Rewriting with $\widehat{\mathrm{Var}}_n(X)$ gives
+
 $$
 \mathrm{Var}(\hat\mu(x)\mid X)=\frac{\sigma^2}{n}\left(1+\frac{(x-\bar X)^2}{\widehat{\mathrm{Var}}_n(X)}\right),
 $$
 
 which matches (the corrected) expression obtained from the “signal + noise” expansion.
-
 
 Now we’ll consider a linear regression model using the PSA data from Example 0.1. The code below fits the log(Y)∼ log(X) linear regression model, and plots predictions along the regression line.
 
@@ -283,16 +254,11 @@ abline(proslm, col = 2, lwd = 2)
 
 ```
 
-
-**Consider two questions we could answer with this model:**
-1. Question about Population: What is the estimated average cancer volume for the population of men with a PSA level of 10 ng/mL?
-2. Question about Individual: If an individual has a PSA level of 10 ng/mL, what is our prediction of this man’s cancer volume?
+**Consider two questions we could answer with this model:** 1. Question about Population: What is the estimated average cancer volume for the population of men with a PSA level of 10 ng/mL? 2. Question about Individual: If an individual has a PSA level of 10 ng/mL, what is our prediction of this man’s cancer volume?
 
 **Exercise 0.5.** Assume we use the simple linear regression model to answer the two questions. Would the answers to these two questions be different?
 
 The point estimate for both questions (population mean at PSA 10 and an individual’s expected cancer volume at PSA 10) is the same number on the model scale: $\hat\mu(x^*) = \hat\beta_0 + \hat\beta_1 x^*$ (here $x^* = \log 10$ in the log–log fit). So numerically the central prediction is identical. What differs is the uncertainty: a confidence interval (mean response) reflects only estimation error in $\hat\mu(x^*)$; a prediction interval (individual response) must also include the irreducible error $\varepsilon$. Hence the prediction interval is wider by the additive $\sigma^2$ term inside the standard error. Conclusion: Same point prediction, different (wider) interval for the individual.
-
-
 
 Nonetheless, the two questions are subtly different. Typically, we’re not just interested in point estimation (for a population or individual), but also we want to quantify our uncertainty about our estimates. Intuitively, we’ll have more certainty about predictions for a population than an individual.
 
@@ -300,19 +266,19 @@ We’ll first consider uncertainty quantification when we make predictions about
 
 Then, we’ll consider uncertainty quantification when we make predictions about an individual. Even though this will involve the same prediction $\hat\mu(x)$, we’ll have to consider uncertainty about a specific prediction, rather than predictions on average.
 
-
 ## Interval Estimation for Mean Response
 
-First we’ll consider estimating the mean outcome for a particular covariate value (which we’ll call x∗). Our best estimate is:
-$$
+First we’ll consider estimating the mean outcome for a particular covariate value (which we’ll call x∗). Our best estimate is: $$
 \hat\mu(x^∗) = \hat\beta_0 + \hat\beta_1x^∗
 $$
-We’ve already seen $\hat\mu(x^∗)$ is unbiased. Meanwhile, we showed that 
+
+We’ve already seen $\hat\mu(x^∗)$ is unbiased. Meanwhile, we showed that
+
 $$
 \text{Var}(\mu(x^∗)|X) = \frac{\sigma^2}{n}\bigg(1 + \frac{(x^* - \bar X)^2}{\widehat{\text{Var}}_n(X)}\bigg)
 $$
 
-Now we’ll conduct uncertainty quantification for $\hat\mu(x^∗)$ by considering its distribution and corresponding confidence intervals. 
+Now we’ll conduct uncertainty quantification for $\hat\mu(x^∗)$ by considering its distribution and corresponding confidence intervals.
 
 **Exercise 0.6**. What is the distribution of $\hat\mu(x^*)|X$?
 
@@ -368,17 +334,15 @@ Note the syntax for how the new value of the predictor is specified via the newd
 
 We exponentiate the interval because the model predicts log cancer volume. The exponentiated values are confidence intervals for cancer volume.
 
-In text, we would report this as follows: Our model estimates that the average cancer volume for patients with a PSA level of 10 ng/mL is 3.38 cc (95% CI [2.87, 3.98]). 
+In text, we would report this as follows: Our model estimates that the average cancer volume for patients with a PSA level of 10 ng/mL is 3.38 cc (95% CI [2.87, 3.98]).
 
 Notice we have given units, estimate, and confidence interval together.
 
-## Prediction Inveral for Observation
+## Prediction Interval for Observation
 
-Now we’ll consider uncertainty quantification when predicting the outcome for one observation, rather than predicting the mean outcome for a population. We will still consider a covariate value $X= x^∗$, but now we will form a prediction interval for the predicted outcome $Y^∗$ (rather than the mean outcome $\mathbb{E}[Y|X= x^∗]$). This is relevant when we observe a new
-observation $X= x^∗$, but don’t know the corresponding $Y^∗$.
+Now we’ll consider uncertainty quantification when predicting the outcome for one observation, rather than predicting the mean outcome for a population. We will still consider a covariate value $X= x^∗$, but now we will form a prediction interval for the predicted outcome $Y^∗$ (rather than the mean outcome $\mathbb{E}[Y|X= x^∗]$). This is relevant when we observe a new observation $X= x^∗$, but don’t know the corresponding $Y^∗$.
 
-Based on the linear regression model, our best prediction is again:
-$$
+Based on the linear regression model, our best prediction is again: $$
 \mu(x^∗) = \beta_0 + \beta_1x^∗
 $$
 
@@ -392,13 +356,11 @@ For predicting an individual $Y^*$, the error is $Y^* - \hat\mu(x^*)$. Its preci
 
 Write $Y^* = \mu(x^*) + \varepsilon^*$ with $\varepsilon^* \sim N(0,\sigma^2)$, independent of the sample errors. Then $\hat\mu(x^*) - Y^* = (\hat\mu(x^*) - \mu(x^*)) - \varepsilon^*.$ Hence $\mathrm{Var}(\hat\mu(x^*) - Y^* \mid X) = \mathrm{Var}(\hat\mu(x^*) - \mu(x^*) \mid X) + \mathrm{Var}(\varepsilon^*) = \sigma^2\left(\tfrac{1}{n} + \tfrac{(x^* - \bar X)^2}{S_{XX}}\right) + \sigma^2 = \sigma^2\left(1 + \tfrac{1}{n} + \tfrac{(x^* - \bar X)^2}{S_{XX}}\right) = \sigma^2\left(1 + h(x^*)\right),$ where $h(x^*) = \tfrac{1}{n} + \tfrac{(x^* - \bar X)^2}{S_{XX}}$. As $n \to \infty$ (with $x^*$ in the interior and predictor variance bounded away from 0), $h(x^*) \to 0$ and the variance approaches $\sigma^2$, the irreducible error.
 
-
 **Exercise 0.11**. Derive the appropriate $100(1− \alpha)\%$ prediction interval.
 
 **Exercise 0.12**. Return to our “individual question”: If an individual has a PSA level of 10 ng/mL, what is our prediction of this man’s cancer volume? To answer this, construct an appropriate 95% prediction interval.
 
 Prediction standard error (log scale): $\hat\sigma \sqrt{1 + \tfrac{1}{n} + \tfrac{(x^* - \bar X)^2}{S_{XX}}} = 0.8040745 \sqrt{1 + 0.0103093 + 0.0002415} \approx 0.8083$ Margin: $1.985251 \times 0.8083 \approx 1.6047$. 95% prediction interval (log scale): $1.218172 \pm 1.6047 = (-0.386516,\ 2.822861)$ Exponentiate to original scale: $(e^{-0.386516},\ e^{1.218172},\ e^{2.822861}) = (0.6794196,\ 3.381003,\ 16.82492)$ Report: Predicted cancer volume for an individual with PSA 10 ng/mL is 3.38 cc (95% prediction interval [0.68, 16.82]).
-
 
 ```{r}
 pred <- predict(proslm, newdata = data.frame(psa = 10), 
@@ -416,13 +378,9 @@ Based on this model, we predict that the cancer volume of a patient with a PSA l
 
 Again, we have given units, estimate, and prediction interval together.
 
-
-
-
 **Exercise 0.13**. How does this prediction interval compare to the confidence interval we computed earlier?
 
-We can visually compare the confidence interval and prediction interval in
-R as follows:
+We can visually compare the confidence interval and prediction interval in R as follows:
 
 ```{r, warning=FALSE}
 #make scatterplot
@@ -443,60 +401,52 @@ lines(log(prosdat$psa), predInt[,"lwr"], col = "blue", lty = 2)
 lines(log(prosdat$psa), predInt[,"upr"], col = "blue", lty = 2)
 ```
 
+-   Confidence interval (CI) for the mean response at $x^*$: $$
+    \hat\mu(x^*) \pm t_{0.975, n-2}\ \hat\sigma \sqrt{h(x^*)},\quad
+    h(x^*) = \frac{1}{n} + \frac{(x^* - \bar X)^2}{S_{XX}}
+    $$
 
-- Confidence interval (CI) for the mean response at $x^*$:
-$$
-\hat\mu(x^*) \pm t_{0.975, n-2}\ \hat\sigma \sqrt{h(x^*)},\quad
-h(x^*) = \frac{1}{n} + \frac{(x^* - \bar X)^2}{S_{XX}}
-$$
-
-- Prediction interval (PI) for an individual response:
-$$
-\hat\mu(x^*) \pm t_{0.975, n-2}\ \hat\sigma \sqrt{1 + h(x^*)}
-$$
+-   Prediction interval (PI) for an individual response: $$
+    \hat\mu(x^*) \pm t_{0.975, n-2}\ \hat\sigma \sqrt{1 + h(x^*)}
+    $$
 
 The only difference is the added $1$ inside the square root for the prediction interval, representing the irreducible noise of a new observation.
 
+From your calculations: - $h(x^*) = 0.0103093 + 0.0002415 = 0.0105508$ - $\sqrt{h(x^*)} \approx 0.10272$ - $\sqrt{1 + h(x^*)} \approx 1.00526$
 
-From your calculations:
-- $h(x^*) = 0.0103093 + 0.0002415 = 0.0105508$
-- $\sqrt{h(x^*)} \approx 0.10272$
-- $\sqrt{1 + h(x^*)} \approx 1.00526$
-
-Ratio of standard errors (log scale):
-$$
+Ratio of standard errors (log scale): $$
 \frac{\sqrt{1 + h(x^*)}}{\sqrt{h(x^*)}} \approx \frac{1.00526}{0.10272} \approx 9.79
 $$
 
 Thus, on the log scale, the prediction interval is about 9.8 times wider than the confidence interval.
 
-- CI (log scale): $(1.054206,\ 1.382139)$ — width $\approx 0.328$
-- PI (log scale): $(-0.386516,\ 2.822861)$ — width $\approx 3.209$
+-   CI (log scale): $(1.054206,\ 1.382139)$ — width $\approx 0.328$
+-   PI (log scale): $(-0.386516,\ 2.822861)$ — width $\approx 3.209$
 
 Width ratio: $3.209 / 0.328 \approx 9.79$ (confirms the formula-based ratio)
 
-
 Because the exponential is nonlinear, the intervals become asymmetric:
 
-- Confidence interval (mean cancer volume):
-  $$
-  (2.87,\ 3.38,\ 3.98)\ \text{cc},\ \text{width} \approx 1.11 \text{ cc}
-  $$
-- Prediction interval (individual cancer volume):
-  $$
-  (0.68,\ 3.38,\ 16.82)\ \text{cc},\ \text{width} \approx 16.15 \text{ cc}
-  $$
+-   Confidence interval (mean cancer volume): $$
+    (2.87,\ 3.38,\ 3.98)\ \text{cc},\ \text{width} \approx 1.11 \text{ cc}
+    $$
+-   Prediction interval (individual cancer volume): $$
+    (0.68,\ 3.38,\ 16.82)\ \text{cc},\ \text{width} \approx 16.15 \text{ cc}
+    $$
 
 The ratio of widths on the original scale is even larger ($\approx 14.5$) due to exponential stretching on the upper end.
 
+-   Confidence interval: Where the *population mean* cancer volume lies (with 95% confidence) for men with PSA = 10 ng/mL.
 
-- Confidence interval: Where the *population mean* cancer volume lies (with 95% confidence) for men with PSA = 10 ng/mL.
-- Prediction interval: A plausible *range for an individual man’s* cancer volume at PSA = 10 ng/mL.
-- The large spread in the prediction interval reflects biological variability not explainable by PSA alone.
+-   Prediction interval: A plausible *range for an individual man’s* cancer volume at PSA = 10 ng/mL.
 
+-   The large spread in the prediction interval reflects biological variability not explainable by PSA alone.
 
-- Both bands (red = CI, blue dashed = PI) are narrowest near $\bar X$ and widen as $x$ moves away — driven by $h(x)$.
-- The *relative* gap between them is largest near the center because the CI can become very tight while the PI has a lower bound set by $\hat\sigma$.
-- As $n$ grows:
-  - CI half-width $\to 0$ (since $h(x^*) \to 0$)
-  - PI half-width $\to t \hat\sigma$ (irreducible noise remains)
+-   Both bands (red = CI, blue dashed = PI) are narrowest near $\bar X$ and widen as $x$ moves away — driven by $h(x)$.
+
+-   The *relative* gap between them is largest near the center because the CI can become very tight while the PI has a lower bound set by $\hat\sigma$.
+
+-   As $n$ grows:
+
+    -   CI half-width $\to 0$ (since $h(x^*) \to 0$)
+    -   PI half-width $\to t \hat\sigma$ (irreducible noise remains)

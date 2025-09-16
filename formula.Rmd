@@ -1,0 +1,358 @@
+---
+title: "Simple Linear Regression: Complete Formula Reference"
+output: html_notebook
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+## The Simple Linear Regression Model
+
+The simple linear regression model assumes:
+
+$$Y_i = \beta_0 + \beta_1 X_i + \epsilon_i, \quad i = 1,2,\ldots,n$$
+
+where: - $\beta_0$ = intercept parameter - $\beta_1$ = slope parameter\
+- $\epsilon_i$ = random error term
+
+## Model Assumptions
+
+1.  **Mean-Zero Noise**: $E[\epsilon_i | X_i] = 0$ for all $i$
+2.  **Constant Variance (Homoskedasticity)**:
+    $\text{Var}(\epsilon_i | X_i) = \sigma^2$ for all $i$
+3.  **Uncorrelated Noise**:
+    $\text{Cov}(\epsilon_i, \epsilon_j | X_i) = 0$ for all $i \neq j$
+4.  **Normality (for inference)**:
+    $\epsilon_i | X_i \sim N(0, \sigma^2)$
+
+## Parameter Estimation
+
+### Least Squares Estimators
+
+**Slope Estimator:**
+$$\hat{\beta}_1 = \frac{\sum_{i=1}^n (X_i - \bar{X})(Y_i - \bar{Y})}{\sum_{i=1}^n (X_i - \bar{X})^2} = \frac{s_{xy}}{s_{xx}}$$
+
+**Intercept Estimator:**
+$$\hat{\beta}_0 = \bar{Y} - \hat{\beta}_1 \bar{X}$$
+
+**Alternative Forms:**
+$$\hat{\beta}_1 = \frac{\sum_{i=1}^n X_i Y_i - n\bar{X}\bar{Y}}{\sum_{i=1}^n X_i^2 - n\bar{X}^2}$$
+
+### Key Quantities
+
+**Sum of Squares:** - $s_{xx} = \sum_{i=1}^n (X_i - \bar{X})^2$ (sum of
+squared deviations of X) - $s_{yy} = \sum_{i=1}^n (Y_i - \bar{Y})^2$
+(sum of squared deviations of Y)\
+- $s_{xy} = \sum_{i=1}^n (X_i - \bar{X})(Y_i - \bar{Y})$ (sum of cross
+products)
+
+**Fitted Values and Residuals:**
+$$\hat{Y}_i = \hat{\beta}_0 + \hat{\beta}_1 X_i$$
+$$e_i = Y_i - \hat{Y}_i$$
+
+**Sum of Squared Errors:**
+$$\text{SSE} = \sum_{i=1}^n e_i^2 = \sum_{i=1}^n (Y_i - \hat{Y}_i)^2$$
+
+## Properties of Estimators
+
+### Linearity (Linear Combinations)
+
+**Slope as linear combination:**
+$$\hat{\beta}_1 = \sum_{i=1}^n w_i Y_i, \quad \text{where } w_i = \frac{X_i - \bar{X}}{s_{xx}}, \quad \sum_i w_i = 0$$
+
+**Intercept as linear combination:**
+$$\hat{\beta}_0 = \sum_{i=1}^n a_i Y_i, \quad \text{where } a_i = \frac{1}{n} - \bar{X}w_i, \quad \sum_i a_i = 1$$
+
+### Unbiasedness Proofs
+
+**Proof that** $\hat{\beta}_1$ is unbiased:
+
+Starting with the linear combination form:
+$$\hat{\beta}_1 = \sum_{i=1}^n w_i Y_i = \sum_{i=1}^n w_i (\beta_0 + \beta_1 X_i + \epsilon_i)$$
+
+$$= \beta_0 \sum_{i=1}^n w_i + \beta_1 \sum_{i=1}^n w_i X_i + \sum_{i=1}^n w_i \epsilon_i$$
+
+Now we need to evaluate each sum:
+
+1.  $\sum_{i=1}^n w_i = \sum_{i=1}^n \frac{X_i - \bar{X}}{s_{xx}} = \frac{1}{s_{xx}} \sum_{i=1}^n (X_i - \bar{X}) = \frac{1}{s_{xx}} \cdot 0 = 0$
+
+2.  $\sum_{i=1}^n w_i X_i = \sum_{i=1}^n \frac{X_i - \bar{X}}{s_{xx}} X_i = \frac{1}{s_{xx}} \sum_{i=1}^n X_i(X_i - \bar{X})$
+
+    $= \frac{1}{s_{xx}} \sum_{i=1}^n (X_i^2 - \bar{X}X_i) = \frac{1}{s_{xx}} \left(\sum_{i=1}^n X_i^2 - \bar{X}\sum_{i=1}^n X_i\right)$
+
+    $= \frac{1}{s_{xx}} \left(\sum_{i=1}^n X_i^2 - \bar{X} \cdot n\bar{X}\right) = \frac{1}{s_{xx}} \left(\sum_{i=1}^n X_i^2 - n\bar{X}^2\right)$
+
+    $= \frac{1}{s_{xx}} \sum_{i=1}^n (X_i^2 - \bar{X}^2) = \frac{1}{s_{xx}} \sum_{i=1}^n (X_i - \bar{X})(X_i + \bar{X})$
+
+    But more directly:
+    $\sum_{i=1}^n w_i X_i = \frac{1}{s_{xx}} \sum_{i=1}^n (X_i - \bar{X})X_i = \frac{s_{xx}}{s_{xx}} = 1$
+
+Therefore:
+$$\hat{\beta}_1 = \beta_0 \cdot 0 + \beta_1 \cdot 1 + \sum_{i=1}^n w_i \epsilon_i = \beta_1 + \sum_{i=1}^n w_i \epsilon_i$$
+
+Taking expectation (conditioning on X):
+$$E[\hat{\beta}_1 | X] = \beta_1 + \sum_{i=1}^n w_i E[\epsilon_i | X_i] = \beta_1 + \sum_{i=1}^n w_i \cdot 0 = \beta_1$$
+
+**Proof that** $\hat{\beta}_0$ is unbiased:
+
+Starting with the definition:
+$$\hat{\beta}_0 = \bar{Y} - \hat{\beta}_1 \bar{X}$$
+
+Taking expectation:
+$$E[\hat{\beta}_0 | X] = E[\bar{Y} | X] - \bar{X} E[\hat{\beta}_1 | X]$$
+
+We know that:
+$$E[\bar{Y} | X] = E\left[\frac{1}{n}\sum_{i=1}^n Y_i | X\right] = \frac{1}{n}\sum_{i=1}^n E[Y_i | X_i] = \frac{1}{n}\sum_{i=1}^n (\beta_0 + \beta_1 X_i) = \beta_0 + \beta_1 \bar{X}$$
+
+And we just proved that $E[\hat{\beta}_1 | X] = \beta_1$.
+
+Therefore:
+$$E[\hat{\beta}_0 | X] = (\beta_0 + \beta_1 \bar{X}) - \bar{X} \cdot \beta_1 = \beta_0$$
+
+### Variance Derivations
+
+**Variance of** $\hat{\beta}_1$:
+
+Since $\hat{\beta}_1 = \sum_{i=1}^n w_i Y_i$ and the $Y_i$ are
+uncorrelated given X:
+
+$$\text{Var}(\hat{\beta}_1 | X) = \text{Var}\left(\sum_{i=1}^n w_i Y_i | X\right) = \sum_{i=1}^n w_i^2 \text{Var}(Y_i | X_i) = \sum_{i=1}^n w_i^2 \sigma^2 = \sigma^2 \sum_{i=1}^n w_i^2$$
+
+Now:
+$$\sum_{i=1}^n w_i^2 = \sum_{i=1}^n \left(\frac{X_i - \bar{X}}{s_{xx}}\right)^2 = \frac{1}{s_{xx}^2} \sum_{i=1}^n (X_i - \bar{X})^2 = \frac{s_{xx}}{s_{xx}^2} = \frac{1}{s_{xx}}$$
+
+Therefore: $$\text{Var}(\hat{\beta}_1 | X) = \frac{\sigma^2}{s_{xx}}$$
+
+**Variance of** $\hat{\beta}_0$:
+
+Since $\hat{\beta}_0 = \sum_{i=1}^n a_i Y_i$ where
+$a_i = \frac{1}{n} - \bar{X}w_i$:
+
+$$\text{Var}(\hat{\beta}_0 | X) = \sigma^2 \sum_{i=1}^n a_i^2 = \sigma^2 \sum_{i=1}^n \left(\frac{1}{n} - \bar{X}w_i\right)^2$$
+
+$$= \sigma^2 \sum_{i=1}^n \left(\frac{1}{n^2} - \frac{2\bar{X}w_i}{n} + \bar{X}^2 w_i^2\right)$$
+
+$$= \sigma^2 \left(\frac{n}{n^2} - \frac{2\bar{X}}{n}\sum_{i=1}^n w_i + \bar{X}^2 \sum_{i=1}^n w_i^2\right)$$
+
+Since $\sum_{i=1}^n w_i = 0$ and
+$\sum_{i=1}^n w_i^2 = \frac{1}{s_{xx}}$:
+
+$$\text{Var}(\hat{\beta}_0 | X) = \sigma^2 \left(\frac{1}{n} + \frac{\bar{X}^2}{s_{xx}}\right)$$
+
+### Covariance Derivation
+
+$$\text{Cov}(\hat{\beta}_0, \hat{\beta}_1 | X) = \text{Cov}\left(\sum_{i=1}^n a_i Y_i, \sum_{j=1}^n w_j Y_j | X\right) = \sigma^2 \sum_{i=1}^n a_i w_i$$
+
+$$= \sigma^2 \sum_{i=1}^n \left(\frac{1}{n} - \bar{X}w_i\right) w_i = \sigma^2 \left(\frac{1}{n}\sum_{i=1}^n w_i - \bar{X}\sum_{i=1}^n w_i^2\right)$$
+
+$$= \sigma^2 \left(0 - \bar{X} \cdot \frac{1}{s_{xx}}\right) = -\frac{\bar{X}\sigma^2}{s_{xx}}$$
+
+### Correlation
+
+$$\text{Corr}(\hat{\beta}_0, \hat{\beta}_1 | X) = \frac{\text{Cov}(\hat{\beta}_0, \hat{\beta}_1 | X)}{\sqrt{\text{Var}(\hat{\beta}_0 | X)\text{Var}(\hat{\beta}_1 | X)}}$$
+
+$$= \frac{-\frac{\bar{X}\sigma^2}{s_{xx}}}{\sqrt{\sigma^2\left(\frac{1}{n} + \frac{\bar{X}^2}{s_{xx}}\right) \cdot \frac{\sigma^2}{s_{xx}}}} = -\frac{\bar{X}}{\sqrt{s_{xx}/n + \bar{X}^2}}$$
+
+## Variance Estimation
+
+**Unbiased Estimator:**
+$$\hat{\sigma}^2 = \frac{\text{SSE}}{n-2} = \frac{\sum_{i=1}^n e_i^2}{n-2}$$
+
+**Proof of Unbiasedness:**
+
+We need to show that $E[\hat{\sigma}^2 | X] = \sigma^2$.
+
+First, note that:
+$$\text{SSE} = \sum_{i=1}^n e_i^2 = \sum_{i=1}^n (Y_i - \hat{Y}_i)^2$$
+
+It can be shown (using properties of quadratic forms) that:
+$$E[\text{SSE} | X] = (n-2)\sigma^2$$
+
+Therefore:
+$$E[\hat{\sigma}^2 | X] = E\left[\frac{\text{SSE}}{n-2} | X\right] = \frac{E[\text{SSE} | X]}{n-2} = \frac{(n-2)\sigma^2}{n-2} = \sigma^2$$
+
+**Degrees of Freedom:** $n-2$ (lose 2 for estimating $\beta_0$ and
+$\beta_1$)
+
+## Standard Errors
+
+$$\text{SE}(\hat{\beta}_1) = \sqrt{\frac{\hat{\sigma}^2}{s_{xx}}}$$
+
+$$\text{SE}(\hat{\beta}_0) = \sqrt{\hat{\sigma}^2\left(\frac{1}{n} + \frac{\bar{X}^2}{s_{xx}}\right)}$$
+
+## Statistical Inference
+
+### Sampling Distributions (Normal Errors)
+
+$$\hat{\beta}_1 | X \sim N\left(\beta_1, \frac{\sigma^2}{s_{xx}}\right)$$
+
+$$\hat{\beta}_0 | X \sim N\left(\beta_0, \sigma^2\left(\frac{1}{n} + \frac{\bar{X}^2}{s_{xx}}\right)\right)$$
+
+### t-Statistics
+
+$$t_1 = \frac{\hat{\beta}_1 - \beta_1^{(0)}}{\text{SE}(\hat{\beta}_1)} \sim t_{n-2}$$
+
+$$t_0 = \frac{\hat{\beta}_0 - \beta_0^{(0)}}{\text{SE}(\hat{\beta}_0)} \sim t_{n-2}$$
+
+### Confidence Intervals
+
+**For slope:**
+$$\hat{\beta}_1 \pm t_{1-\alpha/2, n-2} \cdot \text{SE}(\hat{\beta}_1)$$
+
+**For intercept:**
+$$\hat{\beta}_0 \pm t_{1-\alpha/2, n-2} \cdot \text{SE}(\hat{\beta}_0)$$
+
+## Prediction
+
+### Mean Response at $x^*$
+
+**Point Estimate:**
+$$\hat{\mu}(x^*) = \hat{\beta}_0 + \hat{\beta}_1 x^*$$
+
+**Variance:**
+$$\text{Var}(\hat{\mu}(x^*) | X) = \sigma^2\left(\frac{1}{n} + \frac{(x^* - \bar{X})^2}{s_{xx}}\right)$$
+
+**Standard Error:**
+$$\text{SE}(\hat{\mu}(x^*)) = \hat{\sigma}\sqrt{\frac{1}{n} + \frac{(x^* - \bar{X})^2}{s_{xx}}}$$
+
+**Confidence Interval for Mean Response:**
+$$\hat{\mu}(x^*) \pm t_{1-\alpha/2, n-2} \cdot \text{SE}(\hat{\mu}(x^*))$$
+
+### Individual Prediction at $x^*$
+
+**Prediction Error Variance:**
+$$\text{Var}(\hat{\mu}(x^*) - Y^* | X) = \sigma^2\left(1 + \frac{1}{n} + \frac{(x^* - \bar{X})^2}{s_{xx}}\right)$$
+
+**Prediction Standard Error:**
+$$\text{SE}_{\text{pred}}(x^*) = \hat{\sigma}\sqrt{1 + \frac{1}{n} + \frac{(x^* - \bar{X})^2}{s_{xx}}}$$
+
+**Prediction Interval:**
+$$\hat{\mu}(x^*) \pm t_{1-\alpha/2, n-2} \cdot \text{SE}_{\text{pred}}(x^*)$$
+
+## Analysis of Variance (ANOVA)
+
+### Sum of Squares Decomposition
+
+$$\text{SST} = \text{SSR} + \text{SSE}$$
+
+where: - $\text{SST} = \sum_{i=1}^n (Y_i - \bar{Y})^2$ (Total Sum of
+Squares) - $\text{SSR} = \sum_{i=1}^n (\hat{Y}_i - \bar{Y})^2$
+(Regression Sum of Squares)\
+- $\text{SSE} = \sum_{i=1}^n (Y_i - \hat{Y}_i)^2$ (Error Sum of Squares)
+
+### Alternative SSR Formula
+
+$$\text{SSR} = \hat{\beta}_1^2 s_{xx} = \frac{s_{xy}^2}{s_{xx}}$$
+
+### Coefficient of Determination
+
+$$R^2 = \frac{\text{SSR}}{\text{SST}} = 1 - \frac{\text{SSE}}{\text{SST}}$$
+
+**Alternative form:**
+$$R^2 = \frac{s_{xy}^2}{s_{xx} \cdot s_{yy}} = [\text{Corr}(X,Y)]^2$$
+
+### F-Test for Overall Significance
+
+$$F = \frac{\text{MSR}}{\text{MSE}} = \frac{\text{SSR}/1}{\text{SSE}/(n-2)} \sim F_{1,n-2}$$
+
+**Relationship to t-test:** $$F = t_1^2$$
+
+## Maximum Likelihood Estimation
+
+Under normality assumption $\epsilon_i | X_i \sim N(0, \sigma^2)$:
+
+**Likelihood Function:**
+$$L(\beta_0, \beta_1, \sigma^2) = \prod_{i=1}^n \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left(-\frac{(Y_i - \beta_0 - \beta_1 X_i)^2}{2\sigma^2}\right)$$
+
+**Log-likelihood:**
+$$\ell(\beta_0, \beta_1, \sigma^2) = -\frac{n}{2}\log(2\pi) - \frac{n}{2}\log(\sigma^2) - \frac{1}{2\sigma^2}\sum_{i=1}^n (Y_i - \beta_0 - \beta_1 X_i)^2$$
+
+**First-order conditions:**
+$$\frac{\partial \ell}{\partial \beta_0} = \frac{1}{\sigma^2}\sum_{i=1}^n (Y_i - \beta_0 - \beta_1 X_i) = 0$$
+$$\frac{\partial \ell}{\partial \beta_1} = \frac{1}{\sigma^2}\sum_{i=1}^n X_i(Y_i - \beta_0 - \beta_1 X_i) = 0$$
+$$\frac{\partial \ell}{\partial \sigma^2} = -\frac{n}{2\sigma^2} + \frac{1}{2\sigma^4}\sum_{i=1}^n (Y_i - \beta_0 - \beta_1 X_i)^2 = 0$$
+
+**MLE Results:** -
+$\hat{\beta}_0^{\text{MLE}} = \hat{\beta}_0^{\text{LS}}$ -
+$\hat{\beta}_1^{\text{MLE}} = \hat{\beta}_1^{\text{LS}}$\
+- $\hat{\sigma}^2_{\text{MLE}} = \frac{\text{SSE}}{n}$ (biased, differs
+from unbiased estimator)
+
+## Important Properties and Theorems
+
+### Gauss-Markov Theorem
+
+Under the basic assumptions (1-3), the OLS estimators $\hat{\beta}_0$
+and $\hat{\beta}_1$ are: - **B**est (minimum variance among all linear
+unbiased estimators) - **L**inear (in the $Y_i$) - **U**nbiased -
+**E**stimators (BLUE)
+
+### Normal Equations
+
+The least squares estimators satisfy: $$\sum_{i=1}^n e_i = 0$$
+$$\sum_{i=1}^n X_i e_i = 0$$
+
+These can be derived by minimizing
+$\sum_{i=1}^n (Y_i - \beta_0 - \beta_1 X_i)^2$ with respect to $\beta_0$
+and $\beta_1$.
+
+### Key Relationships
+
+1.  **Fitted values pass through the mean:**
+    $$(\bar{X}, \bar{Y}) \text{ lies on the regression line}$$
+
+2.  **Leverage effect:**
+
+    -   Prediction uncertainty increases as $|x^* - \bar{X}|$ increases
+    -   Minimum uncertainty at $x^* = \bar{X}$
+
+3.  **Degrees of freedom:**
+
+    -   Total: $n-1$
+    -   Regression: $1$
+    -   Error: $n-2$
+
+4.  **Residual properties:**
+
+    -   $\sum_{i=1}^n e_i = 0$ (residuals sum to zero)
+    -   $\sum_{i=1}^n X_i e_i = 0$ (residuals orthogonal to X)
+    -   $\sum_{i=1}^n \hat{Y}_i e_i = 0$ (residuals orthogonal to fitted
+        values)
+
+## Log Transformations
+
+### Log-Log Model
+
+If we fit: $\log(Y) = \alpha_0 + \alpha_1 \log(X) + \varepsilon$
+
+**Interpretation:** - $\alpha_1$ represents elasticity: a 1% increase in
+X corresponds to approximately $\alpha_1$% increase in Y - For doubling
+of X: expected change in Y is $\alpha_1 \log(2)$
+
+### Log-Linear Model
+
+If we fit: $\log(Y) = \alpha_0 + \alpha_1 X + \varepsilon$
+
+**Back-transformation:** - Median of Y given X:
+$\exp(\alpha_0 + \alpha_1 X)$ - Mean of Y given X:
+$\exp(\alpha_0 + \alpha_1 X + \sigma^2/2)$ (if errors are normal)
+
+### Semi-log Model (Linear-Log)
+
+If we fit: $Y = \alpha_0 + \alpha_1 \log(X) + \varepsilon$
+
+**Interpretation:** - A 1% increase in X leads to approximately
+$\alpha_1/100$ unit increase in Y - For doubling of X: expected change
+in Y is $\alpha_1 \log(2)$
+
+## Optimal Prediction Property
+
+The conditional expectation $E[Y|X]$ minimizes mean squared prediction
+error:
+
+$$E[(Y - g(X))^2] = E[\text{Var}(Y|X)] + E[(E[Y|X] - g(X))^2]$$
+
+The minimum is achieved when $g(X) = E[Y|X]$.
+
+**Bias-Variance Decomposition:**
+$$E[(Y - \hat{Y})^2] = \text{Var}(Y) + \text{Var}(\hat{Y}) + [\text{Bias}(\hat{Y})]^2$$
