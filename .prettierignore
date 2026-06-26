@@ -1,0 +1,8 @@
+_archive/
+handout/
+*.Rmd
+*.R
+*.RData
+*.html
+**/figure-gfm/
+Chapter-*_files/
